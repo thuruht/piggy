@@ -1,0 +1,38 @@
+name = "pigmap"
+main = "src/worker.js"
+compatibility_date = "2024-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[vars]
+ENVIRONMENT = "production"
+PRIVACY_MODE = "strict"
+LOG_LEVEL = "error"
+
+[[kv_namespaces]]
+binding = "PIGMAP_CONFIG"
+id = "96dd87122a134b75a59e94a106d2b9ac"
+
+
+
+
+
+[[r2_buckets]]
+binding = "LIVESTOCK_MEDIA"
+bucket_name = "livestock-media"
+
+[[d1_databases]]
+binding = "LIVESTOCK_DB"
+database_name = "livestock"
+database_id = "11a70f2e-831a-4fdc-8447-d891fdf950b7"
+
+[[durable_objects.bindings]]
+name = "LIVESTOCK_REPORTS"
+class_name = "LivestockReport"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["LivestockReport"]
