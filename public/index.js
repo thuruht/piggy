@@ -737,22 +737,34 @@ class ICEPIGTracker {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          filename: `${markerId}/${file.name}`,
+          filename: file.name,
           contentType: file.type
         })
       });
       
-      const { uploadUrl } = await response.json();
+      if (!response.ok) {
+        throw new Error(`Upload URL request failed: ${response.status}`);
+      }
       
-      await fetch(uploadUrl, {
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      const uploadResponse = await fetch(data.uploadUrl, {
         method: 'PUT',
         body: file,
         headers: { 'Content-Type': file.type }
       });
       
-      return uploadUrl.split('?')[0];
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
+      }
+      
+      return data.uploadUrl.split('?')[0];
     } catch (error) {
       console.error('Upload failed:', error);
+      this.showToast(`Upload failed: ${error.message}`, 'error');
       return null;
     }
   }
@@ -872,9 +884,8 @@ class ICEPIGTracker {
 
   changeLang(lang) {
     this.currentLang = lang;
-    this.setupUI();
-    this.setupMap();
-    this.loadMarkers();
+    // Don't reinitialize everything, just update UI text
+    this.updateUIText();
   }
 
   closeModal() {
@@ -910,6 +921,13 @@ ICEPIGTracker.prototype.hideLoadingIndicator = function() {
       duration: 0.5,
       onComplete: () => indicator.remove()
     });
+  }
+};
+
+ICEPIGTracker.prototype.updateUIText = function() {
+  const addBtn = document.getElementById('addBtn');
+  if (addBtn && !this.addMode) {
+    addBtn.innerHTML = `<span class="btn-icon">+</span> ${this.t('add_new_marker')}`;
   }
 };
 

@@ -54,16 +54,26 @@ export default {
 };
 
 async function handleUploadUrl(request, env, headers) {
-  const { filename, contentType } = await request.json();
-  
-  const key = `media/${Date.now()}-${filename}`;
-  const uploadUrl = await env.LIVESTOCK_MEDIA.createPresignedUrl(key, {
-    method: 'PUT',
-    expires: 3600,
-    headers: { 'Content-Type': contentType }
-  });
+  try {
+    const { filename, contentType } = await request.json();
+    
+    const key = `media/${Date.now()}-${Math.random().toString(36).substring(2)}-${filename}`;
+    const uploadUrl = await env.LIVESTOCK_MEDIA.createPresignedUrl(key, {
+      method: 'PUT',
+      expires: 3600,
+      headers: { 'Content-Type': contentType }
+    });
 
-  return new Response(JSON.stringify({ uploadUrl }), { headers });
+    return new Response(JSON.stringify({ uploadUrl }), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Upload URL error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to generate upload URL' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 async function getMarkers(env, headers) {
