@@ -703,11 +703,18 @@ class ICEPIGTracker {
     saveBtn.disabled = true;
 
     try {
-      for (let file of files) {
-        const mediaUrl = await this.uploadMedia(file, marker.id);
-        if (mediaUrl) marker.media.push(mediaUrl);
+      if (files.length > 0) {
+        saveBtn.textContent = 'Uploading media...';
+        for (let file of files) {
+          const mediaUrl = await this.uploadMedia(file, marker.id);
+          if (mediaUrl) {
+            marker.media.push(mediaUrl);
+            console.log('Media uploaded:', mediaUrl);
+          }
+        }
       }
 
+      saveBtn.textContent = 'Saving...';
       await this.saveToCloudflare(marker);
       this.markers.push(marker);
       this.addMarkerToMap(marker);
@@ -716,15 +723,15 @@ class ICEPIGTracker {
       this.closeModal();
       this.addMode = false;
       
-      // Animate new marker
       gsap.from(this.vectorSource.getFeatures().slice(-1)[0], {
         scale: 0,
         duration: 0.5,
         ease: "back.out(1.7)"
       });
       
-      this.showToast('Report added successfully!');
+      this.showToast(`Report added! ${marker.media.length > 0 ? `(${marker.media.length} files)` : ''}`);
     } catch (error) {
+      console.error('Save error:', error);
       this.showToast('Failed to save report', 'error');
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
@@ -800,12 +807,16 @@ class ICEPIGTracker {
 
   showMarkerDetails(feature) {
     const data = feature.getProperties();
+    const mediaHtml = data.media && data.media.length > 0 
+      ? data.media.map(url => `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`).join('')
+      : '';
+    
     document.getElementById('modal-body').innerHTML = `
       <h3>${data.title}</h3>
       <p><strong>Type:</strong> ${data.type}</p>
-      <p><strong>Description:</strong> ${data.description}</p>
+      <p><strong>Description:</strong> ${data.description || 'No description'}</p>
       <p><strong>Posted:</strong> ${new Date(data.timestamp).toLocaleString()}</p>
-      ${data.media.map(url => `<img src="${url}" class="media-preview">`).join('')}
+      ${mediaHtml}
       <div id="comments"></div>
       <textarea id="newComment" placeholder="${this.t('add_comment')}"></textarea>
       <input id="commentAuthor" placeholder="${this.t('author')}">
@@ -873,7 +884,7 @@ class ICEPIGTracker {
     if (this.addMode) {
       btn.innerHTML = `<span class="btn-icon">✕</span> Done`;
       btn.style.background = 'linear-gradient(45deg, #95a5a6, #7f8c8d)';
-      this.showToast('Click on the map to add a report');
+      this.showToast(this.t('add_marker_instruction') || 'Click on the map to add a report');
     } else {
       btn.innerHTML = `<span class="btn-icon">+</span> ${this.t('add_new_marker')}`;
       btn.style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a52)';
@@ -929,6 +940,21 @@ ICEPIGTracker.prototype.updateUIText = function() {
   if (addBtn && !this.addMode) {
     addBtn.innerHTML = `<span class="btn-icon">+</span> ${this.t('add_new_marker')}`;
   }
+  
+  // Update other UI elements
+  const elements = {
+    '.stat-label': ['Total Reports', 'ICE', 'PIG', 'Today'],
+    '.legend-item span': ['ICE Activity', 'PIG Activity']
+  };
+  
+  Object.keys(elements).forEach(selector => {
+    const nodeList = document.querySelectorAll(selector);
+    elements[selector].forEach((text, index) => {
+      if (nodeList[index]) {
+        nodeList[index].textContent = text;
+      }
+    });
+  });
 };
 
 window.tracker = new ICEPIGTracker();
