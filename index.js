@@ -1,21 +1,9 @@
-import Map from 'ol/Map.js';
-import View from 'ol/View.js';
-import TileLayer from 'ol/layer/Tile.js';
-import OSM from 'ol/source/OSM.js';
-import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
-import Feature from 'ol/Feature.js';
-import Point from 'ol/geom/Point.js';
-import {Style, Icon, Text, Fill, Stroke} from 'ol/style.js';
-import {fromLonLat, toLonLat} from 'ol/proj.js';
-import Overlay from 'ol/Overlay.js';
-
 class ICEPIGTracker {
   constructor() {
     this.translations = {};
     this.currentLang = 'en';
     this.magicCode = this.generateMagicCode();
-    this.vectorSource = new VectorSource();
+    this.vectorSource = new ol.source.Vector();
     this.init();
   }
 
@@ -25,8 +13,8 @@ class ICEPIGTracker {
 
   async init() {
     await this.loadTranslations();
-    this.setupMap();
     this.setupUI();
+    this.setupMap();
     this.loadMarkers();
   }
 
@@ -41,20 +29,20 @@ class ICEPIGTracker {
 
   setupMap() {
     // Kansas City coordinates
-    const kcCenter = fromLonLat([-94.5786, 39.0997]);
+    const kcCenter = ol.proj.fromLonLat([-94.5786, 39.0997]);
     
-    this.map = new Map({
+    this.map = new ol.Map({
       target: 'map',
       layers: [
-        new TileLayer({
-          source: new OSM()
+        new ol.layer.Tile({
+          source: new ol.source.OSM()
         }),
-        new VectorLayer({
+        new ol.layer.Vector({
           source: this.vectorSource,
           style: this.getMarkerStyle.bind(this)
         })
       ],
-      view: new View({
+      view: new ol.View({
         center: kcCenter,
         zoom: 11
       })
@@ -67,8 +55,8 @@ class ICEPIGTracker {
     const type = feature.get('type');
     const color = type === 'ICE' ? '#ff4444' : '#4444ff';
     
-    return new Style({
-      image: new Icon({
+    return new ol.style.Style({
+      image: new ol.style.Icon({
         anchor: [0.5, 1],
         src: `data:image/svg+xml,${encodeURIComponent(`
           <svg width="24" height="36" xmlns="http://www.w3.org/2000/svg">
@@ -135,7 +123,7 @@ class ICEPIGTracker {
 
   async onMapClick(evt) {
     if (this.addMode) {
-      const coords = toLonLat(evt.coordinate);
+      const coords = ol.proj.toLonLat(evt.coordinate);
       this.showAddMarkerModal(coords);
     } else {
       const feature = this.map.forEachFeatureAtPixel(evt.pixel, (f) => f);
@@ -227,8 +215,8 @@ class ICEPIGTracker {
   }
 
   addMarkerToMap(marker) {
-    const feature = new Feature({
-      geometry: new Point(fromLonLat(marker.coords)),
+    const feature = new ol.Feature({
+      geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coords)),
       ...marker
     });
     this.vectorSource.addFeature(feature);

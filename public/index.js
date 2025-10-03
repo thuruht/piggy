@@ -7,7 +7,7 @@ class ICEPIGTracker {
     this.vectorSource = new ol.source.Vector();
     this.markers = [];
     this.stats = { ice: 0, pig: 0, total: 0, today: 0 };
-    this.init();
+    // this.init(); // Initialization is now triggered in data-viz.js
   }
 
   generateMagicCode() {
@@ -15,10 +15,12 @@ class ICEPIGTracker {
   }
 
   async init() {
+    this.addStyles();
     this.showLoadingIndicator();
     try {
       await this.loadTranslations();
-      this.setupUI();
+      this.setupEventListeners();
+      this.updateUIText();
       this.setupMap();
       this.setupDataViz();
       await this.loadMarkers();
@@ -94,106 +96,9 @@ class ICEPIGTracker {
   }
 
   setupUI() {
-    document.body.innerHTML = `
-      <div id="app">
-        <header id="header">
-          <div class="header-content">
-            <h1 class="logo">🐷 PigMap.org</h1>
-            <div class="stats-bar">
-              <div class="stat-item" id="stat-total">
-                <span class="stat-number">0</span>
-                <span class="stat-label">Total Reports</span>
-              </div>
-              <div class="stat-item" id="stat-ice">
-                <span class="stat-number">0</span>
-                <span class="stat-label">ICE</span>
-              </div>
-              <div class="stat-item" id="stat-pig">
-                <span class="stat-number">0</span>
-                <span class="stat-label">PIG</span>
-              </div>
-              <div class="stat-item" id="stat-today">
-                <span class="stat-number">0</span>
-                <span class="stat-label">Today</span>
-              </div>
-            </div>
-            <div class="controls">
-              <button id="addBtn" class="primary-btn">
-                <span class="btn-icon">+</span>
-                ${this.t('add_new_marker')}
-              </button>
-              <button id="vizBtn" class="secondary-btn">
-                <span class="btn-icon">📊</span>
-                Data
-              </button>
-              <select id="langSelect" class="lang-select">
-                <option value="en">🌍 English</option>
-                <option value="es">🌎 Español</option>
-                <option value="fr">🌍 Français</option>
-                <option value="ar">🌍 العربية</option>
-                <option value="zh">🌏 中文</option>
-                <option value="am">🌍 አማርኛ</option>
-                <option value="ht">🌎 Kreyòl</option>
-                <option value="kar">🌏 Karen</option>
-                <option value="ku">🌍 Kurdî</option>
-                <option value="my">🌏 မြန်မာ</option>
-                <option value="ne">🌍 नेपाली</option>
-                <option value="pt">🌎 Português</option>
-                <option value="so">🌍 Soomaali</option>
-                <option value="sw">🌍 Kiswahili</option>
-                <option value="ur">🌍 اردو</option>
-                <option value="vi">🌏 Tiếng Việt</option>
-              </select>
-            </div>
-          </div>
-          <div class="privacy-notice">
-            🔒 Anonymous & Private • No IP Logging • Community Driven
-          </div>
-        </header>
-        
-        <main id="main">
-          <div id="map-container">
-            <div id="map"></div>
-            <div id="map-overlay">
-              <div class="legend">
-                <div class="legend-item">
-                  <div class="legend-color ice"></div>
-                  <span>ICE Activity</span>
-                </div>
-                <div class="legend-item">
-                  <div class="legend-color pig"></div>
-                  <span>PIG Activity</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div id="sidebar" class="sidebar">
-            <div class="sidebar-header">
-              <h3>Data Insights</h3>
-              <button id="closeSidebar" class="close-btn">×</button>
-            </div>
-            <div id="chart-container">
-              <div id="timeline-chart"></div>
-              <div id="type-chart"></div>
-              <div id="heatmap-chart"></div>
-            </div>
-          </div>
-        </main>
-        
-        <div id="modal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="modal-body"></div>
-          </div>
-        </div>
-        
-        <div id="toast-container"></div>
-      </div>
-    `;
-
-    this.setupEventListeners();
-    this.addStyles();
+    // This function is now deprecated.
+    // The UI is defined in `public/index.html` and is no longer dynamically generated.
+    // Event listeners and styles are now set up in the `init` function.
   }
 
   setupEventListeners() {
@@ -709,7 +614,6 @@ class ICEPIGTracker {
           const mediaUrl = await this.uploadMedia(file, marker.id);
           if (mediaUrl) {
             marker.media.push(mediaUrl);
-            console.log('Media uploaded:', mediaUrl);
           }
         }
       }
@@ -927,11 +831,7 @@ ICEPIGTracker.prototype.showLoadingIndicator = function() {
 ICEPIGTracker.prototype.hideLoadingIndicator = function() {
   const indicator = document.getElementById('loading-indicator');
   if (indicator) {
-    gsap.to(indicator, {
-      opacity: 0,
-      duration: 0.5,
-      onComplete: () => indicator.remove()
-    });
+    indicator.remove();
   }
 };
 
@@ -957,4 +857,4 @@ ICEPIGTracker.prototype.updateUIText = function() {
   });
 };
 
-window.tracker = new ICEPIGTracker();
+// The tracker is initialized in data-viz.js to ensure all scripts are loaded.
