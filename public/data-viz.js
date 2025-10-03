@@ -340,3 +340,7 @@ ICEPIGTracker.prototype.showToast = function(message, type = 'success') {
     });
   }, 6000);
 };
+
+// Initialize the tracker after all scripts are loaded
+window.tracker = new ICEPIGTracker();
+window.tracker.init();
