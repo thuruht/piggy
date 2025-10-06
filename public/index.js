@@ -668,7 +668,7 @@ class ICEPIGTracker {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
       
-      return data.uploadUrl.split('?')[0];
+      return data.publicUrl || data.uploadUrl.split('?')[0];
     } catch (error) {
       console.error('Upload failed:', error);
       this.showToast(`Upload failed: ${error.message}`, 'error');

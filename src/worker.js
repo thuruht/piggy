@@ -66,11 +66,14 @@ async function handleUploadUrl(request, env, headers) {
     const key = `media/${Date.now()}-${Math.random().toString(36).substring(2)}-${filename}`;
     const uploadUrl = await env.LIVESTOCK_MEDIA.createPresignedUrl(key, {
       method: 'PUT',
-      expires: 3600,
-      headers: { 'Content-Type': contentType }
+      expires: 3600
     });
 
-    return new Response(JSON.stringify({ uploadUrl }), { 
+    return new Response(JSON.stringify({ 
+      uploadUrl,
+      key,
+      publicUrl: `https://livestock-media.${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com/${key}`
+    }), { 
       headers: { ...headers, 'Content-Type': 'application/json' }
     });
   } catch (error) {

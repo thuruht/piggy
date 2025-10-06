@@ -275,6 +275,7 @@ ICEPIGTracker.prototype.toggleSidebar = function() {
   if (isOpen) {
     this.closeSidebar();
   } else {
+    sidebar.style.display = 'block';
     sidebar.classList.add('open');
     gsap.from('#chart-container > *', {
       x: 50,
@@ -290,6 +291,11 @@ ICEPIGTracker.prototype.toggleSidebar = function() {
 ICEPIGTracker.prototype.closeSidebar = function() {
   const sidebar = document.getElementById('sidebar');
   sidebar.classList.remove('open');
+  setTimeout(() => {
+    if (!sidebar.classList.contains('open')) {
+      sidebar.style.display = 'none';
+    }
+  }, 400);
 };
 
 ICEPIGTracker.prototype.animateEntrance = function() {
