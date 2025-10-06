@@ -17,38 +17,44 @@ export default {
     try {
       // Handle API routes first
       if (url.pathname.startsWith('/api/')) {
+        if (url.pathname === '/api/upload-url') {
+          return handleUploadUrl(request, env, headers);
+        }
 
-      if (url.pathname === '/api/upload-url') {
-        return handleUploadUrl(request, env, headers);
-      }
+        if (url.pathname === '/api/markers') {
+          return request.method === 'GET' 
+            ? getMarkers(env, headers)
+            : saveMarker(request, env, headers);
+        }
 
-      if (url.pathname === '/api/markers') {
-        return request.method === 'GET' 
-          ? getMarkers(env, headers)
-          : saveMarker(request, env, headers);
-      }
+        if (url.pathname.startsWith('/api/markers/')) {
+          const id = url.pathname.split('/')[3];
+          return deleteMarker(id, env, headers);
+        }
 
-      if (url.pathname.startsWith('/api/markers/')) {
-        const id = url.pathname.split('/')[3];
-        return deleteMarker(id, env, headers);
-      }
+        if (url.pathname === '/api/comments') {
+          return saveComment(request, env, headers);
+        }
 
-      if (url.pathname === '/api/comments') {
-        return saveComment(request, env, headers);
-      }
+        if (url.pathname.startsWith('/api/comments/')) {
+          const markerId = url.pathname.split('/')[3];
+          return getComments(markerId, env, headers);
+        }
 
-      if (url.pathname.startsWith('/api/comments/')) {
-        const markerId = url.pathname.split('/')[3];
-        return getComments(markerId, env, headers);
-      }
-
-        return new Response('Not Found', { status: 404, headers });
+        return new Response(JSON.stringify({ error: 'API endpoint not found' }), { 
+          status: 404, 
+          headers: { ...headers, 'Content-Type': 'application/json' }
+        });
       }
       
-      // For non-API routes, serve static assets or fallback to index.html
+      // For non-API routes, serve static assets
       return env.ASSETS.fetch(request);
     } catch (error) {
-      return new Response('Error', { status: 500, headers });
+      console.error('Worker error:', error);
+      return new Response(JSON.stringify({ error: 'Internal server error' }), { 
+        status: 500, 
+        headers: { ...headers, 'Content-Type': 'application/json' }
+      });
     }
   }
 };
@@ -77,422 +83,134 @@ async function handleUploadUrl(request, env, headers) {
 }
 
 async function getMarkers(env, headers) {
-  const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
-  return new Response(JSON.stringify(markers), { headers });
+  try {
+    const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
+    return new Response(JSON.stringify(markers), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Get markers error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch markers' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 async function saveMarker(request, env, headers) {
-  const marker = await request.json();
-  
-  marker.id = crypto.randomUUID();
-  marker.timestamp = new Date().toISOString();
-  
-  const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
-  markers.push(marker);
-  
-  await env.PIGMAP_CONFIG.put('markers', JSON.stringify(markers));
-  
-  const durableId = env.LIVESTOCK_REPORTS.idFromName('tracker');
-  const durableStub = env.LIVESTOCK_REPORTS.get(durableId);
-  await durableStub.fetch('http://tracker/broadcast', {
-    method: 'POST',
-    body: JSON.stringify({ type: 'marker_added', marker })
-  });
+  try {
+    const marker = await request.json();
+    
+    if (!marker.title || !marker.type || !marker.coords) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { 
+        status: 400, 
+        headers: { ...headers, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    marker.id = crypto.randomUUID();
+    marker.timestamp = new Date().toISOString();
+    marker.title = marker.title.substring(0, 200);
+    marker.description = (marker.description || '').substring(0, 1000);
+    
+    const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
+    markers.push(marker);
+    
+    await env.PIGMAP_CONFIG.put('markers', JSON.stringify(markers));
+    
+    try {
+      const durableId = env.LIVESTOCK_REPORTS.idFromName('tracker');
+      const durableStub = env.LIVESTOCK_REPORTS.get(durableId);
+      await durableStub.fetch('http://tracker/broadcast', {
+        method: 'POST',
+        body: JSON.stringify({ type: 'marker_added', marker })
+      });
+    } catch (broadcastError) {
+      console.warn('Broadcast failed:', broadcastError);
+    }
 
-  return new Response(JSON.stringify({ success: true }), { headers });
+    return new Response(JSON.stringify({ success: true, id: marker.id }), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Save marker error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to save marker' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 async function deleteMarker(id, env, headers) {
-  const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
-  const filtered = markers.filter(m => m.id !== id);
-  
-  await env.PIGMAP_CONFIG.put('markers', JSON.stringify(filtered));
-  
-  return new Response(JSON.stringify({ success: true }), { headers });
+  try {
+    const markers = await env.PIGMAP_CONFIG.get('markers', 'json') || [];
+    const filtered = markers.filter(m => m.id !== id);
+    
+    await env.PIGMAP_CONFIG.put('markers', JSON.stringify(filtered));
+    
+    return new Response(JSON.stringify({ success: true }), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Delete marker error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to delete marker' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 async function saveComment(request, env, headers) {
-  const comment = await request.json();
-  comment.id = crypto.randomUUID();
-  comment.timestamp = new Date().toISOString();
-  
-  const comments = await env.PIGMAP_CONFIG.get('comments', 'json') || [];
-  comments.push(comment);
-  
-  await env.PIGMAP_CONFIG.put('comments', JSON.stringify(comments));
-  
-  return new Response(JSON.stringify({ success: true }), { headers });
+  try {
+    const comment = await request.json();
+    
+    if (!comment.text || !comment.markerId) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { 
+        status: 400, 
+        headers: { ...headers, 'Content-Type': 'application/json' }
+      });
+    }
+    
+    comment.id = crypto.randomUUID();
+    comment.timestamp = new Date().toISOString();
+    comment.text = comment.text.substring(0, 500);
+    comment.author = (comment.author || 'Anonymous').substring(0, 50);
+    
+    const comments = await env.PIGMAP_CONFIG.get('comments', 'json') || [];
+    comments.push(comment);
+    
+    await env.PIGMAP_CONFIG.put('comments', JSON.stringify(comments));
+    
+    return new Response(JSON.stringify({ success: true, id: comment.id }), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Save comment error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to save comment' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
 async function getComments(markerId, env, headers) {
-  const comments = await env.PIGMAP_CONFIG.get('comments', 'json') || [];
-  const filtered = comments.filter(c => c.markerId === markerId);
-  
-  return new Response(JSON.stringify(filtered), { headers });
+  try {
+    const comments = await env.PIGMAP_CONFIG.get('comments', 'json') || [];
+    const filtered = comments.filter(c => c.markerId === markerId);
+    
+    return new Response(JSON.stringify(filtered), { 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Get comments error:', error);
+    return new Response(JSON.stringify({ error: 'Failed to fetch comments' }), { 
+      status: 500, 
+      headers: { ...headers, 'Content-Type': 'application/json' }
+    });
+  }
 }
 
-async function getHTML() {
-  return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>ICE & PIG Tracker - Kansas City</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <link rel="stylesheet" href="/ol.css">
-</head>
-<body>
-  <div id="app">
-    <header id="header">
-      <div class="header-content">
-        <h1 class="logo">🐷 PigMap.org</h1>
-        <div class="stats-bar">
-          <div class="stat-item" id="stat-total">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Total Reports</span>
-          </div>
-          <div class="stat-item" id="stat-ice">
-            <span class="stat-number">0</span>
-            <span class="stat-label">ICE</span>
-          </div>
-          <div class="stat-item" id="stat-pig">
-            <span class="stat-number">0</span>
-            <span class="stat-label">PIG</span>
-          </div>
-          <div class="stat-item" id="stat-today">
-            <span class="stat-number">0</span>
-            <span class="stat-label">Today</span>
-          </div>
-        </div>
-        <div class="controls">
-          <button id="addBtn" class="primary-btn">
-            <span class="btn-icon">+</span>
-            Add New Report
-          </button>
-          <button id="vizBtn" class="secondary-btn">
-            <span class="btn-icon">📊</span>
-            Data
-          </button>
-          <select id="langSelect" class="lang-select">
-            <option value="en">🌍 English</option>
-            <option value="es">🌎 Español</option>
-            <option value="fr">🌍 Français</option>
-            <option value="ar">🌍 العربية</option>
-            <option value="zh">🌏 中文</option>
-            <option value="am">🌍 አማርኛ</option>
-            <option value="ht">🌎 Kreyòl</option>
-            <option value="kar">🌏 Karen</option>
-            <option value="ku">🌍 Kurdî</option>
-            <option value="my">🌏 မြန်မာ</option>
-            <option value="ne">🌍 नेपाली</option>
-            <option value="pt">🌎 Português</option>
-            <option value="so">🌍 Soomaali</option>
-            <option value="sw">🌍 Kiswahili</option>
-            <option value="ur">🌍 اردو</option>
-            <option value="vi">🌏 Tiếng Việt</option>
-          </select>
-        </div>
-      </div>
-      <div class="privacy-notice">
-        🔒 Anonymous & Private • No IP Logging • Community Driven
-      </div>
-    </header>
-    
-    <main id="main">
-      <div id="map-container">
-        <div id="map"></div>
-        <div id="map-overlay">
-          <div class="legend">
-            <div class="legend-item">
-              <div class="legend-color ice"></div>
-              <span>ICE Activity</span>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color pig"></div>
-              <span>PIG Activity</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-          <h3>Data Insights</h3>
-          <button id="closeSidebar" class="close-btn">×</button>
-        </div>
-        <div id="chart-container">
-          <div id="timeline-chart"></div>
-          <div id="type-chart"></div>
-          <div id="heatmap-chart"></div>
-        </div>
-      </div>
-    </main>
-    
-    <div id="modal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <div id="modal-body"></div>
-      </div>
-    </div>
-    
-    <div id="toast-container"></div>
-  </div>
-  
-  <style>
-    * { box-sizing: border-box; }
-    body { 
-      margin: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #333;
-    }
-    #app { height: 100vh; display: flex; flex-direction: column; }
-    #header {
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-    }
-    .header-content {
-      padding: 15px 20px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-      margin: 0;
-      background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .stats-bar { display: flex; gap: 20px; flex: 1; }
-    .stat-item {
-      text-align: center;
-      padding: 8px 16px;
-      background: rgba(255,255,255,0.8);
-      border-radius: 12px;
-      min-width: 80px;
-      transition: all 0.3s ease;
-    }
-    .stat-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .stat-number {
-      display: block;
-      font-size: 24px;
-      font-weight: 700;
-      color: #2c3e50;
-    }
-    .stat-label {
-      display: block;
-      font-size: 12px;
-      color: #7f8c8d;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .controls { display: flex; gap: 10px; align-items: center; }
-    .primary-btn, .secondary-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 25px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-    }
-    .primary-btn {
-      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
-      color: white;
-      box-shadow: 0 4px 15px rgba(255,107,107,0.3);
-    }
-    .primary-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255,107,107,0.4);
-    }
-    .secondary-btn {
-      background: rgba(255,255,255,0.9);
-      color: #333;
-      border: 1px solid rgba(0,0,0,0.1);
-    }
-    .secondary-btn:hover {
-      background: white;
-      transform: translateY(-1px);
-    }
-    .lang-select {
-      padding: 8px 12px;
-      border: 1px solid rgba(0,0,0,0.1);
-      border-radius: 20px;
-      background: rgba(255,255,255,0.9);
-      font-size: 14px;
-    }
-    .privacy-notice {
-      text-align: center;
-      padding: 8px;
-      font-size: 12px;
-      color: #666;
-      background: rgba(255,255,255,0.7);
-    }
-    #main { flex: 1; display: flex; position: relative; }
-    #map-container { flex: 1; position: relative; }
-    #map { width: 100%; height: 100%; }
-    #map-overlay { position: absolute; top: 20px; right: 20px; z-index: 100; }
-    .legend {
-      background: rgba(255,255,255,0.95);
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      backdrop-filter: blur(10px);
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-    .legend-color { width: 16px; height: 16px; border-radius: 50%; }
-    .legend-color.ice { background: #ff4444; }
-    .legend-color.pig { background: #4444ff; }
-    .sidebar {
-      width: 400px;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(10px);
-      border-left: 1px solid rgba(0,0,0,0.1);
-      transform: translateX(100%);
-      transition: transform 0.4s ease;
-      overflow-y: auto;
-    }
-    .sidebar.open { transform: translateX(0); }
-    .sidebar-header {
-      padding: 20px;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-      color: #999;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .close-btn:hover { background: rgba(0,0,0,0.1); color: #333; }
-    #chart-container { padding: 20px; }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(5px);
-    }
-    .modal-content {
-      background: white;
-      margin: 5% auto;
-      padding: 30px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 500px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-    .close {
-      float: right;
-      font-size: 28px;
-      cursor: pointer;
-      color: #aaa;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-    .close:hover { background: rgba(0,0,0,0.1); color: #333; }
-    input, textarea, select {
-      width: 100%;
-      padding: 12px 16px;
-      margin: 8px 0;
-      border: 2px solid #e1e8ed;
-      border-radius: 12px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-    }
-    textarea { height: 100px; resize: vertical; font-family: inherit; }
-    .comment {
-      border-bottom: 1px solid #eee;
-      padding: 15px 0;
-      animation: fadeInUp 0.3s ease;
-    }
-    .comment:last-child { border-bottom: none; }
-    .comment-author { font-weight: 600; color: #2c3e50; margin-bottom: 4px; }
-    .comment-time { font-size: 12px; color: #95a5a6; margin-bottom: 8px; }
-    .media-preview {
-      max-width: 100%;
-      margin: 10px 0;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    #toast-container { position: fixed; top: 20px; right: 20px; z-index: 3000; }
-    .toast {
-      background: rgba(255,255,255,0.95);
-      padding: 15px 20px;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-      backdrop-filter: blur(10px);
-      border-left: 4px solid #4ecdc4;
-      animation: slideInRight 0.3s ease;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(100px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @media (max-width: 768px) {
-      .header-content { flex-direction: column; gap: 15px; }
-      .stats-bar { justify-content: center; }
-      .sidebar { width: 100%; }
-      .modal-content { margin: 10% auto; width: 95%; }
-    }
-  </style>
-  <script src="/ol.js"></script>
-  <script src="/gsap.min.js"></script>
-  <script src="/d3.min.js"></script>
-  <script src="/index.js"></script>
-  <script src="/data-viz.js"></script>
-</body>
-</html>`;
-}
+
 
 export class LivestockReport {
   constructor(state, env) {

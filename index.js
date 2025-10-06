@@ -13,7 +13,6 @@ class ICEPIGTracker {
 
   async init() {
     await this.loadTranslations();
-    this.setupUI();
     this.setupMap();
     this.loadMarkers();
   }
@@ -69,57 +68,9 @@ class ICEPIGTracker {
     });
   }
 
-  setupUI() {
-    document.body.innerHTML = `
-      <div id="app">
-        <div id="controls">
-          <button id="addBtn">${this.t('add_new_marker')}</button>
-          <select id="langSelect">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="ar">العربية</option>
-            <option value="zh">中文</option>
-          </select>
-        </div>
-        <div id="map"></div>
-        <div id="popup" class="popup">
-          <div id="popup-content"></div>
-        </div>
-        <div id="modal" class="modal">
-          <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="modal-body"></div>
-          </div>
-        </div>
-      </div>
-    `;
 
-    this.setupEventListeners();
-    this.addStyles();
-  }
 
-  setupEventListeners() {
-    document.getElementById('addBtn').onclick = () => this.toggleAddMode();
-    document.getElementById('langSelect').onchange = (e) => this.changeLang(e.target.value);
-    document.querySelector('.close').onclick = () => this.closeModal();
-  }
 
-  addStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-      #app { height: 100vh; display: flex; flex-direction: column; }
-      #controls { padding: 10px; background: #f0f0f0; }
-      #map { flex: 1; }
-      .popup { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-      .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-      .modal-content { background: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 80%; max-width: 500px; }
-      .close { float: right; font-size: 28px; cursor: pointer; }
-      button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; background: #007cba; color: white; cursor: pointer; }
-      input, textarea, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
-    `;
-    document.head.appendChild(style);
-  }
 
   async onMapClick(evt) {
     if (this.addMode) {
@@ -307,7 +258,6 @@ class ICEPIGTracker {
 
   changeLang(lang) {
     this.currentLang = lang;
-    this.setupUI();
     this.setupMap();
     this.loadMarkers();
   }

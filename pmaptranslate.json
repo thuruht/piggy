@@ -103,13 +103,13 @@
         "cancel": "တဘၣ်",
         "edit": "မၤ",
         "delete": "မၤလီၤ",
-        "add_marker_instruction": "Click on the map to add a marker",
-        "marker_added": "Marker added successfully!",
-        "marker_deleted": "Marker deleted.",
-        "comments": "Comments",
-        "add_comment": "Add Comment",
-        "author": "Name",
-        "confirm_delete": "Are you sure you want to delete this marker?"
+        "add_marker_instruction": "တၢ်ပနီၣ်တခါထီၣ်ကီၢ် မံၣ်ဖဲ ကလိၣ်ဖိ",
+        "marker_added": "တၢ်ပနီၣ်တခါထီၣ် ဘၣ်လီၤ!",
+        "marker_deleted": "တၢ်ပနီၣ်တခါထီၣ် မၤလီၤ",
+        "comments": "တၢ်ကျိၤ",
+        "add_comment": "တၢ်ကျိၤ ထီၣ်",
+        "author": "မၤ",
+        "confirm_delete": "နံၣ်တၢ်ပနီၣ်တခါထီၣ်ဖံ မၤလီၤကီၢ် ဒီးမုၣ်လါ?"
     },
     "ku": {
         "add_new_marker": "Nîşankerek Nû lê zêde bike",

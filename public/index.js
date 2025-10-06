@@ -95,11 +95,7 @@ class ICEPIGTracker {
     });
   }
 
-  setupUI() {
-    // This function is now deprecated.
-    // The UI is defined in `public/index.html` and is no longer dynamically generated.
-    // Event listeners and styles are now set up in the `init` function.
-  }
+
 
   setupEventListeners() {
     document.getElementById('addBtn').onclick = () => this.toggleAddMode();
@@ -681,11 +677,18 @@ class ICEPIGTracker {
   }
 
   async saveToCloudflare(marker) {
-    await fetch('/api/markers', {
+    const response = await fetch('/api/markers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(marker)
     });
+    
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Unknown error' }));
+      throw new Error(error.error || 'Failed to save marker');
+    }
+    
+    return response.json();
   }
 
   addMarkerToMap(marker) {
@@ -745,23 +748,30 @@ class ICEPIGTracker {
     if (!text) return;
 
     const comment = {
-      id: Date.now().toString(),
       markerId,
       text,
-      author: author || 'Anonymous',
-      timestamp: new Date().toISOString()
+      author: author || 'Anonymous'
     };
 
-    await fetch('/api/comments', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(comment)
-    });
+    try {
+      const response = await fetch('/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(comment)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save comment');
+      }
 
-    this.loadComments(markerId);
-    this.showToast('Comment added');
-    document.getElementById('newComment').value = '';
-    document.getElementById('commentAuthor').value = '';
+      this.loadComments(markerId);
+      this.showToast('Comment added');
+      document.getElementById('newComment').value = '';
+      document.getElementById('commentAuthor').value = '';
+    } catch (error) {
+      console.error('Comment error:', error);
+      this.showToast('Failed to add comment', 'error');
+    }
   }
 
   async loadComments(markerId) {
@@ -810,16 +820,25 @@ class ICEPIGTracker {
   async deleteMarker(id) {
     if (!confirm(this.t('confirm_delete'))) return;
     
-    await fetch(`/api/markers/${id}`, { method: 'DELETE' });
-    
-    const feature = this.vectorSource.getFeatures().find(f => f.get('id') === id);
-    if (feature) this.vectorSource.removeFeature(feature);
-    
-    this.markers = this.markers.filter(m => m.id !== id);
-    this.updateStats();
-    this.updateCharts();
-    this.showToast('Report deleted');
-    this.closeModal();
+    try {
+      const response = await fetch(`/api/markers/${id}`, { method: 'DELETE' });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete marker');
+      }
+      
+      const feature = this.vectorSource.getFeatures().find(f => f.get('id') === id);
+      if (feature) this.vectorSource.removeFeature(feature);
+      
+      this.markers = this.markers.filter(m => m.id !== id);
+      this.updateStats();
+      this.updateCharts();
+      this.showToast('Report deleted');
+      this.closeModal();
+    } catch (error) {
+      console.error('Delete error:', error);
+      this.showToast('Failed to delete report', 'error');
+    }
   }
 }
 
