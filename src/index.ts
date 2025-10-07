@@ -2,13 +2,20 @@ import { Hono } from "hono";
 import { Env } from "./types";
 import markers from "./routes/markers";
 import reports from "./routes/reports";
+import upvotes from "./routes/upvotes";
 import { CONFIG } from "./config";
 
+import { monitoringMiddleware } from "./middleware/monitoring";
+
 const app = new Hono<{ Bindings: Env }>();
+
+// Apply monitoring middleware
+app.use("*", monitoringMiddleware);
 
 // API routes
 app.route("/api/markers", markers);
 app.route("/api/reports", reports);
+app.route("/api/upvotes", upvotes);
 
 // Enhanced Media Upload
 async function handleDirectUpload(request: Request, env: Env, headers: any) {
@@ -93,6 +100,12 @@ app.put("/api/upload-handler/*", async (c) => {
 // Serve static assets
 app.get("*", (c) => {
   return c.env.ASSETS.fetch(c.req.raw);
+});
+
+app.get("/ws", async (c) => {
+  const durableId = c.env.LIVESTOCK_REPORTS.idFromName("tracker");
+  const durableStub = c.env.LIVESTOCK_REPORTS.get(durableId);
+  return durableStub.fetch("http://tracker/websocket", c.req.raw);
 });
 
 export default app;

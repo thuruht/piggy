@@ -39,6 +39,14 @@
             </div>
           </div>
           <div class="controls">
+            <div class="search-container">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search location..."
+              />
+              <button id="searchBtn">Search</button>
+            </div>
             <button
               id="addBtn"
               class="primary-btn"
@@ -80,6 +88,25 @@
         <div id="map-container">
           <div id="map"></div>
           <div id="map-overlay">
+            <div class="layer-control">
+              <button class="layer-control-btn" id="layer-dropdown-btn">
+                <span id="current-layer-name">OpenStreetMap</span> ▼
+              </button>
+              <div
+                class="layer-dropdown-menu"
+                id="layer-dropdown-menu"
+                style="display: none"
+              >
+                <div class="layer-section">
+                  <h4>Base Layers</h4>
+                  <div id="base-layer-controls"></div>
+                </div>
+                <div class="layer-section">
+                  <h4>Overlays</h4>
+                  <div id="overlay-controls"></div>
+                </div>
+              </div>
+            </div>
             <div class="legend">
               <div class="legend-item">
                 <div class="legend-color ice"></div>

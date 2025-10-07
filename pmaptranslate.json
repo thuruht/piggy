@@ -27,7 +27,11 @@
     "privacy_notice": "🔒 Anonymous & Private • No IP Logging • Community Driven",
     "ice_activity": "ICE Activity",
     "pig_activity": "PIG Activity",
-    "data_insights": "Data Insights"
+    "data_insights": "Data Insights",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "es": {
     "add_new_marker": "Agregar nuevo marcador",
@@ -57,7 +61,10 @@
     "privacy_notice": "🔒 Anónimo y privado • Sin registro de IP • Impulsado por la comunidad",
     "ice_activity": "Actividad de ICE",
     "pig_activity": "Actividad de PIG",
-    "data_insights": "Información de datos"
+    "data_insights": "Información de datos",
+    "confirm_report": "¿Estás seguro de que quieres denunciar esta publicación? Se ocultará después de 5 denuncias.",
+    "upvote": "Voto a favor",
+    "upvoted": "Votado a favor"
   },
   "fr": {
     "add_new_marker": "Ajouter un nouveau marqueur",
@@ -87,7 +94,10 @@
     "privacy_notice": "🔒 Anonyme et privé • Pas de journalisation IP • Communautaire",
     "ice_activity": "Activité de l'ICE",
     "pig_activity": "Activité de PIG",
-    "data_insights": "Aperçu des données"
+    "data_insights": "Aperçu des données",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "ar": {
     "add_new_marker": "إضافة علامة جديدة",
@@ -117,7 +127,10 @@
     "privacy_notice": "🔒 مجهول وخاص • بدون تسجيل IP • مدفوع من المجتمع",
     "ice_activity": "نشاط ICE",
     "pig_activity": "نشاط الخنزير",
-    "data_insights": "رؤى البيانات"
+    "data_insights": "رؤى البيانات",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "zh": {
     "add_new_marker": "添加新标记",
@@ -147,7 +160,10 @@
     "privacy_notice": "🔒 匿名与隐私 • 无IP日志 • 社区驱动",
     "ice_activity": "ICE 活动",
     "pig_activity": "PIG 活动",
-    "data_insights": "数据洞察"
+    "data_insights": "数据洞察",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "am": {
     "add_new_marker": "አዲስ ምልክት ማድረጊያ ያክሉ",
@@ -177,7 +193,10 @@
     "privacy_notice": "🔒 ስለ አካውንት ማንነት • የ IP ሰንደቅ የለም • ህብረት የተመሰረተ",
     "ice_activity": "የአይስ እንቅስቃሴ",
     "pig_activity": "የዱንቭና እንቅስቃሴ",
-    "data_insights": "የውሂብ ማግኘት"
+    "data_insights": "የውሂብ ማግኘት",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "ht": {
     "add_new_marker": "Ajoute Nouvo Makè",
@@ -207,7 +226,10 @@
     "privacy_notice": "🔒 Anonym & Prive • Pa gen IP Logging • Kondwi pa kominote a",
     "ice_activity": "Aktivite ICE",
     "pig_activity": "Aktivite PIG",
-    "data_insights": "Enfòmasyon sou done"
+    "data_insights": "Enfòmasyon sou done",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "kar": {
     "add_new_marker": "တၢ်ပနီၣ်တခါထီၣ်",
@@ -237,7 +259,10 @@
     "privacy_notice": "🔒 အမည်မသိနှင့် ပုဂ္ဂိုလ်ရေး • IP မှတ်တမ်းမရှိ • လူထုထောက်ပံ့",
     "ice_activity": "ရေခဲ လုပ်ဆောင်ချက်",
     "pig_activity": "ဝက် လုပ်ဆောင်ချက်",
-    "data_insights": "ဒေတာ နားလည်မှု"
+    "data_insights": "ဒေတာ နားလည်မှု",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "ku": {
     "add_new_marker": "Nîşankerek Nû lê zêde bike",
@@ -267,7 +292,10 @@
     "privacy_notice": "🔒 Nenaskirî û taybet • Nêzîkê IP tune • Kom yekgirtî",
     "ice_activity": "Çalakiya ICE",
     "pig_activity": "Çalakiya PIG",
-    "data_insights": "Têgihiştina daneyan"
+    "data_insights": "Têgihiştina daneyan",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "my": {
     "add_new_marker": "အမှတ်အသားအသစ်ထည့်ပါ",
@@ -297,7 +325,10 @@
     "privacy_notice": "🔒 အမည်မသိနှင့် ပုဂ္ဂိုလ်ရေး • IP မှတ်တမ်းမရှိ • လူထုထောက်ပံ့",
     "ice_activity": "ICE လုပ်ဆောင်ချက်",
     "pig_activity": "PIG လုပ်ဆောင်ချက်",
-    "data_insights": "ဒေတာ အသိအမြင်"
+    "data_insights": "ဒေတာ အသိအမြင်",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "ne": {
     "add_new_marker": "नयाँ मार्कर थप्नुहोस्",
@@ -327,7 +358,10 @@
     "privacy_notice": "🔒 नाम रहित र निजी • IP लग छैन • समुदाय द्वारा सञ्चालित",
     "ice_activity": "ICE गतिविधि",
     "pig_activity": "PIG गतिविधि",
-    "data_insights": "डाटा अंतर्दृष्टि"
+    "data_insights": "डाटा अंतर्दृष्टि",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "pt": {
     "add_new_marker": "Adicionar novo marcador",
@@ -357,7 +391,10 @@
     "privacy_notice": "🔒 Anônimo e privado • Sem registro de IP • Conduzido pela comunidade",
     "ice_activity": "Atividade ICE",
     "pig_activity": "Atividade PIG",
-    "data_insights": "Insights de dados"
+    "data_insights": "Insights de dados",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "so": {
     "add_new_marker": "Ku dar Calaamad Cusub",
@@ -387,7 +424,10 @@
     "privacy_notice": "🔒 Qarsoodi & Gaara • IP lama kaydiyo • Bulshada ayaa maamusha",
     "ice_activity": "Hawlaha ICE",
     "pig_activity": "Hawlaha PIG",
-    "data_insights": "Aragti xogta"
+    "data_insights": "Aragti xogta",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "sw": {
     "add_new_marker": "Ongeza alama mpya",
@@ -417,7 +457,10 @@
     "privacy_notice": "🔒 Anonyma na faragha • Hakuna kurekodi IP • Inaendeshwa na jamii",
     "ice_activity": "Shughuli za ICE",
     "pig_activity": "Shughuli za PIG",
-    "data_insights": "Maarifa ya takwimu"
+    "data_insights": "Maarifa ya takwimu",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "ur": {
     "add_new_marker": "نیا مارکر شامل کریں",
@@ -447,7 +490,10 @@
     "privacy_notice": "🔒 گمنام اور نجی • کوئی آئی پی لاگنگ نہیں • کمیونٹی کے زیرانتظام",
     "ice_activity": "ICE کی سرگرمی",
     "pig_activity": "PIG کی سرگرمی",
-    "data_insights": "ڈیٹا کی بصیرت"
+    "data_insights": "ڈیٹا کی بصیرت",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   },
   "vi": {
     "add_new_marker": "Thêm điểm đánh dấu mới",
@@ -477,6 +523,9 @@
     "privacy_notice": "🔒 Ẩn danh & Riêng tư • Không lưu IP • Do cộng đồng quản lý",
     "ice_activity": "Hoạt động ICE",
     "pig_activity": "Hoạt động PIG",
-    "data_insights": "Thông tin chi tiết dữ liệu"
+    "data_insights": "Thông tin chi tiết dữ liệu",
+    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
+    "upvote": "Upvote",
+    "upvoted": "Upvoted"
   }
 }

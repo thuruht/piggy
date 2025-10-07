@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "test": "vitest run",
+    "build": "node build.js"
   },
   "dependencies": {
     "d3": "^7.8.5",
     "gsap": "^3.12.2",
+    "hono": "^4.9.10",
+    "nanoid": "^5.1.6",
     "ol": "^10.6.1"
   },
   "devDependencies": {

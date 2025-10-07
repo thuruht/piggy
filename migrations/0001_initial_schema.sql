@@ -1,3 +1,5 @@
+
+
 -- Drop existing tables if they exist
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS markers;
