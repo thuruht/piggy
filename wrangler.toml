@@ -23,7 +23,6 @@ id = "96dd87122a134b75a59e94a106d2b9ac"
 [[r2_buckets]]
 binding = "LIVESTOCK_MEDIA"
 bucket_name = "livestock-media"
-jurisdiction = "auto"
 
 [[d1_databases]]
 binding = "LIVESTOCK_DB"

@@ -7,6 +7,7 @@ class ICEPIGTracker {
     this.vectorSource = new ol.source.Vector();
     this.markers = [];
     this.stats = { ice: 0, pig: 0, total: 0, today: 0 };
+    this.displayedMarkerIds = new Set(); // NEW: Track displayed markers
     // this.init(); // Initialization is now triggered in data-viz.js
   }
 
@@ -25,6 +26,8 @@ class ICEPIGTracker {
       this.setupDataViz();
       await this.loadMarkers();
       this.animateEntrance();
+      this.startAutoRefresh(); // NEW: Start auto-refresh
+      this.setupRefreshButton(); // NEW: Add manual refresh button
     } catch (error) {
       console.error('Init error:', error);
       this.showToast('Failed to load application', 'error');
@@ -692,12 +695,107 @@ class ICEPIGTracker {
   }
 
   addMarkerToMap(marker) {
+    if (this.displayedMarkerIds.has(marker.id)) {
+      console.log(`Marker ${marker.id} already displayed, skipping`);
+      return null;
+    }
+
+    let lng = ((marker.coords[1] + 180) % 360) - 180;
+
+    if (isNaN(marker.coords[0]) || isNaN(lng)) {
+      console.error('Invalid coordinates for marker:', marker);
+      return null;
+    }
+
+    const color = this.getMarkerColor(marker);
+    const style = this.createMarkerStyle(color);
+    
     const feature = new ol.Feature({
-      geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coords)),
+
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([lng, marker.coords[0]])),
       ...marker
     });
+    
+    feature.setStyle(style);
     this.vectorSource.addFeature(feature);
+    this.displayedMarkerIds.add(marker.id);
+    
+    return feature;
   }
+
+  getMarkerColor(marker) {
+    const baseColor = marker.type === 'ICE' ? 'red' : 'blue';
+    const age = Date.now() - new Date(marker.timestamp).getTime();
+    const dayInMs = 24 * 60 * 60 * 1000;
+    
+    if (age < dayInMs) return `${baseColor}-bright`;
+    if (age < 7 * dayInMs) return baseColor;
+    return `${baseColor}-faded`;
+  }
+
+  createMarkerStyle(color) {
+    const colors = {
+      'red-bright': '#ff0000',
+      'red': '#cc0000',
+      'red-faded': '#880000',
+      'blue-bright': '#0000ff',
+      'blue': '#0000cc',
+      'blue-faded': '#000088'
+    };
+    
+    return new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 8,
+        fill: new ol.style.Fill({ color: colors[color] || '#ff0000' }),
+        stroke: new ol.style.Stroke({ color: '#fff', width: 2 })
+      })
+    });
+  }
+
+  async refreshMarkers() {
+    try {
+      const response = await fetch('/api/markers');
+      const markers = await response.json();
+      
+      let newCount = 0;
+      markers.forEach(marker => {
+        if (!this.displayedMarkerIds.has(marker.id)) {
+          this.addMarkerToMap(marker);
+          newCount++;
+        }
+      });
+      
+      if (newCount > 0) {
+        this.showToast(`Added ${newCount} new marker(s)`, 'success');
+      } else {
+        this.showToast('Map is up to date', 'success');
+      }
+    } catch (error) {
+      console.error('Refresh error:', error);
+      this.showToast('Failed to refresh markers', 'error');
+    }
+  }
+
+  startAutoRefresh() {
+    setInterval(() => this.refreshMarkers(), 60000);
+  }
+  
+  setupRefreshButton() {
+    const refreshBtn = document.createElement('button');
+    refreshBtn.id = 'refresh-btn';
+    refreshBtn.className = 'secondary-btn';
+    refreshBtn.innerHTML = '↻';
+    refreshBtn.title = 'Refresh Map';
+    refreshBtn.addEventListener('click', () => {
+      refreshBtn.innerHTML = '...';
+      this.refreshMarkers().finally(() => {
+        refreshBtn.innerHTML = '↻';
+      });
+    });
+    
+    document.querySelector('.controls').appendChild(refreshBtn);
+  }
+
 
   async loadMarkers() {
     try {

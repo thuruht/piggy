@@ -34,17 +34,25 @@ class ICEPIGTracker {
     document.querySelectorAll("[data-translate-key]").forEach((el) => {
       const key = el.dataset.translateKey;
       const translation = this.t(key);
+
       if (el.tagName === "TITLE") {
         el.innerText = translation;
       } else if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
         el.placeholder = translation;
       } else {
-        // This will handle most other elements like span, p, h3, etc.
-        el.textContent = translation;
+        // This logic handles elements with mixed content (like icons and text)
+        // It finds and updates only the text nodes, leaving other children (spans, etc.) alone.
+        for (const node of el.childNodes) {
+          if (
+            node.nodeType === Node.TEXT_NODE &&
+            node.textContent.trim().length > 0
+          ) {
+            node.textContent = ` ${translation}`; // Add space for padding
+            break; // Assume one text node per element
+          }
+        }
       }
     });
-    // Special case for the add button, managed by toggleAddMode
-    this.toggleAddMode(this.addMode);
   }
 
   setupMap() {
@@ -303,11 +311,11 @@ class ICEPIGTracker {
     // If forceState is provided (true/false), use it. Otherwise, toggle.
     this.addMode = forceState !== undefined ? forceState : !this.addMode;
 
-    const buttonTextEl = document.querySelector("#addBtn [data-translate-key]");
-    if (buttonTextEl) {
+    const addButton = document.getElementById("addBtn");
+    if (addButton) {
       const key = this.addMode ? "cancel" : "add_new_marker";
-      buttonTextEl.dataset.translateKey = key; // Update the key
-      buttonTextEl.textContent = this.t(key); // Update the text immediately
+      addButton.dataset.translateKey = key; // Update the key
+      this.updateUIText(); // Re-run translation to update this specific button
     }
   }
 
