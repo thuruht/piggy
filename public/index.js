@@ -272,6 +272,7 @@ export class ICEPIGTracker {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           filename: file.name,
+          contentType: file.type,
         }),
       });
 
@@ -294,7 +295,7 @@ export class ICEPIGTracker {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
 
-      return data.publicUrl || data.uploadUrl.split("?")[0];
+      return data.publicUrl;
     } catch (error) {
       console.error("Upload failed:", error);
       this.showToast(`Upload failed: ${error.message}`, "error");

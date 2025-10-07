@@ -21,93 +21,19 @@ app.route("/api/upvotes", upvotes);
 app.route("/api/search", search);
 
 app.post("/api/upload-url", async (c) => {
-  const { filename } = await c.req.json();
+  const { filename, contentType } = await c.req.json();
   const key = `media/${nanoid()}-${filename}`;
-  // Return a URL that points to the upload handler on this Worker
-  return c.json({
-    uploadUrl: `/api/upload-handler/${key}`,
-    publicUrl: `/media/${key}`, // Assuming a public R2 bucket setup
+
+  // Generate a signed URL for PUT request
+  const signedUrl = await c.env.LIVESTOCK_MEDIA.createSignedUrl("put", key, {
+    httpMetadata: { contentType },
+    expires: 3600, // URL expires in 1 hour
   });
-});
 
-// Enhanced Media Upload
-async function handleDirectUpload(request: Request, env: Env, headers: any) {
-  try {
-    const url = new URL(request.url);
-    const key = url.pathname.substring("/api/upload-handler/".length);
-
-    if (!key) {
-      return new Response(JSON.stringify({ error: "Missing key" }), {
-        status: 400,
-        headers: { ...headers, "Content-Type": "application/json" },
-      });
-    }
-
-    const contentLength = parseInt(
-      request.headers.get("Content-Length") || "0"
-    );
-    const contentType = request.headers.get("Content-Type") || "";
-
-    let mediaType: "image" | "video" | "audio" = "image";
-    if (contentType.startsWith("video/")) mediaType = "video";
-    else if (contentType.startsWith("audio/")) mediaType = "audio";
-
-    const maxSize = CONFIG.MAX_FILE_SIZES[mediaType];
-
-    if (contentLength > maxSize) {
-      return new Response(
-        JSON.stringify({
-          error: `File too large. Max ${Math.round(
-            maxSize / (1024 * 1024)
-          )}MB for ${mediaType}`,
-        }),
-        {
-          status: 400,
-          headers: { ...headers, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const allowedTypes = [...CONFIG.ALLOWED_MIME_TYPES[mediaType]] as string[];
-    if (!allowedTypes.includes(contentType)) {
-      return new Response(
-        JSON.stringify({
-          error: `Invalid file type. Allowed: ${allowedTypes.join(", ")}`,
-        }),
-        {
-          status: 400,
-          headers: { ...headers, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    await env.LIVESTOCK_MEDIA.put(key, request.body, {
-      httpMetadata: {
-        contentType: contentType,
-      },
-    });
-
-    return new Response(JSON.stringify({ success: true }), {
-      headers: { ...headers, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    console.error("Direct upload error:", error);
-    return new Response(JSON.stringify({ error: "Failed to upload file" }), {
-      status: 500,
-      headers: { ...headers, "Content-Type": "application/json" },
-    });
-  }
-}
-
-app.put("/api/upload-handler/*", async (c) => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "X-Robots-Tag": "noindex, nofollow",
-    "Referrer-Policy": "no-referrer",
-  };
-  return handleDirectUpload(c.req.raw, c.env, headers);
+  return c.json({
+    uploadUrl: signedUrl,
+    publicUrl: `/media/${key}`,
+  });
 });
 
 app.get("/ws", async (c) => {
