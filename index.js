@@ -205,8 +205,14 @@ class ICEPIGTracker {
   }
 
   addMarkerToMap(marker) {
+    const [lng, lat] = marker.coords;
+    if (isNaN(lat) || isNaN(lng)) {
+      console.error("Invalid coordinates for marker:", marker);
+      return null;
+    }
+
     const feature = new ol.Feature({
-      geometry: new ol.geom.Point(ol.proj.fromLonLat(marker.coords)),
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([lng, lat])),
       ...marker,
     });
     this.vectorSource.addFeature(feature);

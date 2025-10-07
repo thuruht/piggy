@@ -68,7 +68,7 @@ async function handleDirectUpload(request: Request, env: Env, headers: any) {
       );
     }
 
-    const allowedTypes = CONFIG.ALLOWED_MIME_TYPES[mediaType] as string[];
+    const allowedTypes = [...CONFIG.ALLOWED_MIME_TYPES[mediaType]] as string[];
     if (!allowedTypes.includes(contentType)) {
       return new Response(
         JSON.stringify({
