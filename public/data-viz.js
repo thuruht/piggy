@@ -1,5 +1,3 @@
-tete; // Data visualization methods for ICEPIGTracker
-
 export function setupDataViz(tracker) {
   tracker.chartData = {
     timeline: [],
