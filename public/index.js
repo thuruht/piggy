@@ -27,7 +27,6 @@ export class ICEPIGTracker {
       this.setupEventListeners();
       this.updateUIText();
       this.setupMap();
-      this.setupDataViz();
       await this.loadMarkers();
       this.animateEntrance();
       this.startAutoRefresh();
@@ -273,7 +272,6 @@ export class ICEPIGTracker {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           filename: file.name,
-          contentType: file.type,
         }),
       });
 
@@ -305,20 +303,34 @@ export class ICEPIGTracker {
   }
 
   async saveToCloudflare(marker) {
-    const response = await fetch("/api/markers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(marker),
-    });
+    let retries = 3;
+    let delay = 1000;
 
-    if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ error: "Unknown error" }));
-      throw new Error(error.error || "Failed to save marker");
+    while (retries > 0) {
+      const response = await fetch("/api/markers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(marker),
+      });
+
+      if (response.ok) {
+        return response.json();
+      }
+
+      if (response.status === 429) {
+        console.warn("Rate limited. Retrying...");
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        delay *= 2; // Exponential backoff
+        retries--;
+      } else {
+        const error = await response
+          .json()
+          .catch(() => ({ error: "Unknown error" }));
+        throw new Error(error.error || "Failed to save marker");
+      }
     }
 
-    return response.json();
+    throw new Error("Rate limit exceeded. Try again later.");
   }
 
   addMarkerToMap(marker) {
@@ -924,9 +936,7 @@ export class ICEPIGTracker {
     this.showToast(`Searching for "${query}"...`, "info");
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query
-        )}`
+        `/api/search?q=${encodeURIComponent(query)}`
       );
       if (!response.ok) {
         throw new Error("Network response was not ok.");
@@ -975,40 +985,21 @@ ICEPIGTracker.prototype.updateUIText = function () {
     const key = el.dataset.translateKey;
     const translation = this.t(key);
 
-    // Handle the main add/cancel button state
-    if (el.id === "addBtn") {
-      const currentKey = this.addMode ? "cancel" : "add_new_marker";
-      const currentTranslation = this.t(currentKey);
-      el.dataset.translateKey = currentKey; // Update the key
-
-      // Find and update only the text node, preserving the icon span
-      for (const node of el.childNodes) {
-        if (
-          node.nodeType === Node.TEXT_NODE &&
-          node.textContent.trim().length > 0
-        ) {
-          node.textContent = ` ${currentTranslation}`;
-          break;
-        }
-      }
-      return; // Skip to next element
-    }
-
-    // Handle other buttons with icons
-    if (el.tagName === "BUTTON" && el.querySelector(".btn-icon")) {
-      for (const node of el.childNodes) {
-        if (
-          node.nodeType === Node.TEXT_NODE &&
-          node.textContent.trim().length > 0
-        ) {
-          node.textContent = ` ${translation}`;
-          break;
-        }
-      }
-    }
-    // Handle all other elements
-    else {
+    // Handle elements where the entire content is the translation
+    if (el.children.length === 0 || el.tagName === "TITLE") {
       el.textContent = translation;
+      return;
+    }
+
+    // Handle buttons with icons or other complex elements
+    for (const node of el.childNodes) {
+      if (
+        node.nodeType === Node.TEXT_NODE &&
+        node.textContent.trim().length > 0
+      ) {
+        node.textContent = ` ${translation}`;
+        break;
+      }
     }
   });
 };

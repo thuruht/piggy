@@ -2,7 +2,7 @@
 export interface Marker {
   id: string;
   title: string;
-  type: 'ICE' | 'PIG';
+  type: "ICE" | "PIG";
   description: string;
   coords: [number, number];
   timestamp: string;
@@ -24,4 +24,5 @@ export interface Env {
   LIVESTOCK_MEDIA: R2Bucket;
   LIVESTOCK_DB: D1Database;
   LIVESTOCK_REPORTS: DurableObjectNamespace;
+  ASSETS: { fetch: (req: Request) => Promise<Response> };
 }

@@ -19,6 +19,14 @@ class ICEPIGTracker {
     document
       .getElementById("langSelect")
       .addEventListener("change", (e) => this.changeLang(e.target.value));
+    document
+      .getElementById("searchBtn")
+      .addEventListener("click", () => this.searchLocation());
+    document.getElementById("searchInput").addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        this.searchLocation();
+      }
+    });
   }
 
   async loadTranslations() {
@@ -144,7 +152,7 @@ class ICEPIGTracker {
       type,
       title,
       description: desc,
-      coords,
+      coords: coords.flat(),
       timestamp: new Date().toISOString(),
       magicCode: this.magicCode,
       media: [],
@@ -340,6 +348,37 @@ class ICEPIGTracker {
     if (feature) this.vectorSource.removeFeature(feature);
 
     this.closeModal();
+  }
+
+  async searchLocation() {
+    const query = document.getElementById("searchLocation").value;
+    if (query.length < 3) return;
+
+    try {
+      const response = await fetch(
+        `/api/search?q=${encodeURIComponent(query)}`
+      );
+      const results = await response.json();
+
+      const resultsHtml = results
+        .map(
+          (r) =>
+            `<div onclick="tracker.centerMapOn('${r.lon}', '${r.lat}')">${r.display_name}</div>`
+        )
+        .join("");
+      document.getElementById("searchResults").innerHTML = resultsHtml;
+    } catch (error) {
+      console.error("Search error:", error);
+    }
+  }
+
+  centerMapOn(lon, lat) {
+    this.map.getView().animate({
+      center: ol.proj.fromLonLat([parseFloat(lon), parseFloat(lat)]),
+      zoom: 14,
+      duration: 1000,
+    });
+    document.getElementById("searchResults").innerHTML = "";
   }
 }
 

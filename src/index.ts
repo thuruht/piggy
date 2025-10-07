@@ -1,8 +1,10 @@
+import { nanoid } from "nanoid";
 import { Hono } from "hono";
 import { Env } from "./types";
 import markers from "./routes/markers";
 import reports from "./routes/reports";
 import upvotes from "./routes/upvotes";
+import search from "./routes/search";
 import { CONFIG } from "./config";
 
 import { monitoringMiddleware } from "./middleware/monitoring";
@@ -16,6 +18,17 @@ app.use("/api/*", monitoringMiddleware);
 app.route("/api/markers", markers);
 app.route("/api/reports", reports);
 app.route("/api/upvotes", upvotes);
+app.route("/api/search", search);
+
+app.post("/api/upload-url", async (c) => {
+  const { filename } = await c.req.json();
+  const key = `media/${nanoid()}-${filename}`;
+  // Return a URL that points to the upload handler on this Worker
+  return c.json({
+    uploadUrl: `/api/upload-handler/${key}`,
+    publicUrl: `/media/${key}`, // Assuming a public R2 bucket setup
+  });
+});
 
 // Enhanced Media Upload
 async function handleDirectUpload(request: Request, env: Env, headers: any) {
@@ -55,7 +68,7 @@ async function handleDirectUpload(request: Request, env: Env, headers: any) {
       );
     }
 
-    const allowedTypes = CONFIG.ALLOWED_MIME_TYPES[mediaType];
+    const allowedTypes = CONFIG.ALLOWED_MIME_TYPES[mediaType] as string[];
     if (!allowedTypes.includes(contentType)) {
       return new Response(
         JSON.stringify({
@@ -97,15 +110,15 @@ app.put("/api/upload-handler/*", async (c) => {
   return handleDirectUpload(c.req.raw, c.env, headers);
 });
 
-// Serve static assets
-app.get("*", (c) => {
-  return c.env.ASSETS.fetch(c.req.raw);
-});
-
 app.get("/ws", async (c) => {
   const durableId = c.env.LIVESTOCK_REPORTS.idFromName("tracker");
   const durableStub = c.env.LIVESTOCK_REPORTS.get(durableId);
   return durableStub.fetch("http://tracker/websocket", c.req.raw);
+});
+
+// Serve static assets from the assets service.
+app.get("*", (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
 });
 
 export default app;

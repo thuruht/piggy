@@ -22,7 +22,7 @@ reports.post("/:id", async (c) => {
     }
 
     // Increment report count and check hide logic
-    const result = await c.env.LIVESTOCK_DB.prepare(
+    const result = (await c.env.LIVESTOCK_DB.prepare(
       `
   UPDATE markers
   SET reportCount = reportCount + 1,
@@ -35,12 +35,12 @@ reports.post("/:id", async (c) => {
 `
     )
       .bind(CONFIG.REPORT_THRESHOLD, id)
-      .first();
+      .first()) as { hidden: number } | null;
 
     // Mark as reported for this session (24 hours)
     await c.env.PIGMAP_CONFIG.put(sessionKey, "true", { expirationTtl: 86400 });
 
-    return c.json({ success: true, hidden: result.hidden });
+    return c.json({ success: true, hidden: result?.hidden || 0 });
   } catch (error) {
     console.error("Report error:", error);
     return c.json({ error: "Failed to report marker" }, 500);
