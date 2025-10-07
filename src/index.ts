@@ -9,8 +9,8 @@ import { monitoringMiddleware } from "./middleware/monitoring";
 
 const app = new Hono<{ Bindings: Env }>();
 
-// Apply monitoring middleware
-app.use("*", monitoringMiddleware);
+// Apply monitoring middleware to API routes only
+app.use("/api/*", monitoringMiddleware);
 
 // API routes
 app.route("/api/markers", markers);
