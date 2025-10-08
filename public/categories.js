@@ -1,0 +1,42 @@
+export const categories = {
+  ICE: {
+    label: "ICE Activity",
+    description: "Sightings or activity of Immigration and Customs Enforcement.",
+    color: "#ff4444",
+    icon: "ti-building-factory-2",
+    emoji: "🚨",
+    unicode: "",
+  },
+  PIG: {
+    label: "PIG Activity",
+    description: "General police activity or presence.",
+    color: "#4444ff",
+    icon: "ti-bell-ringing-2",
+    emoji: "🐷",
+    unicode: "",
+  },
+  CHECKPOINT: {
+    label: "Checkpoint",
+    description: "DUI, license, or other types of police checkpoints.",
+    color: "#ff9800",
+    icon: "ti-traffic-cone",
+    emoji: "🚧",
+    unicode: "",
+  },
+  RAID: {
+    label: "Raid",
+    description: "Confirmed raid on a home or workplace.",
+    color: "#9c27b0",
+    icon: "ti-door-off",
+    emoji: "🚪",
+    unicode: "",
+  },
+  OTHER: {
+    label: "Other",
+    description: "Other types of law enforcement activity.",
+    color: "#795548",
+    icon: "ti-question-mark",
+    emoji: "❓",
+    unicode: "",
+  },
+};

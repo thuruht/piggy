@@ -1,4 +1,5 @@
 import { createLayerControl } from "./map-layers.js";
+import { categories } from "./categories.js";
 
 export class ICEPIGTracker {
   constructor() {
@@ -27,6 +28,7 @@ export class ICEPIGTracker {
       this.setupEventListeners();
       this.updateUIText();
       this.setupMap();
+      this.setupLegend();
       await this.loadMarkers();
       this.animateEntrance();
       this.startAutoRefresh();
@@ -87,18 +89,57 @@ export class ICEPIGTracker {
     }
   }
 
+  setupLegend() {
+    const legendContainer = document.getElementById("legend-container");
+    if (!legendContainer) return;
+
+    legendContainer.innerHTML = ""; // Clear existing legend
+
+    for (const key in categories) {
+      const category = categories[key];
+      const legendItem = document.createElement("div");
+      legendItem.className = "legend-item";
+
+      const iconSvg = `
+        <svg width="20" height="28" viewBox="0 0 30 42" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px; vertical-align: middle;">
+          <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${category.color}"/>
+          <style>
+            .icon { font-family: "tabler-icons"; font-size: 18px; fill: white; }
+          </style>
+          <text x="15" y="19" class="icon" text-anchor="middle">${category.unicode}</text>
+        </svg>
+      `;
+
+      const label = document.createElement("span");
+      label.textContent = category.label;
+
+      legendItem.innerHTML = iconSvg;
+      legendItem.appendChild(label);
+      legendContainer.appendChild(legendItem);
+    }
+  }
+
   getMarkerStyle(feature) {
     const type = feature.get("type");
-    const color = type === "ICE" ? "#ff4444" : "#4444ff";
+    const category = categories[type] || categories.OTHER;
+    const color = category.color;
+    const iconUnicode = category.unicode;
 
     return new ol.style.Style({
       image: new ol.style.Icon({
         anchor: [0.5, 1],
         src: `data:image/svg+xml,${encodeURIComponent(`
-          <svg width="24" height="36" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24c0-6.6-5.4-12-12-12z" fill="${color}"/>
-            <circle cx="12" cy="12" r="6" fill="white"/>
-            <text x="12" y="16" text-anchor="middle" font-size="8" fill="${color}">${type}</text>
+          <svg width="30" height="42" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
+              </filter>
+            </defs>
+            <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${color}" filter="url(#shadow)"/>
+            <style>
+              .icon { font-family: "tabler-icons"; font-size: 18px; fill: white; }
+            </style>
+            <text x="15" y="19" class="icon" text-anchor="middle">${iconUnicode}</text>
           </svg>
         `)}`,
       }),
@@ -142,6 +183,13 @@ export class ICEPIGTracker {
   }
 
   showAddMarkerModal(coords) {
+    const categoryOptions = Object.entries(categories)
+      .map(
+        ([key, cat]) =>
+          `<option value="${key}">${cat.emoji} ${cat.label}</option>`
+      )
+      .join("");
+
     document.getElementById("modal-body").innerHTML = `
       <h3 style="margin-top: 0; color: #2c3e50;">${this.t(
         "add_new_marker"
@@ -149,8 +197,7 @@ export class ICEPIGTracker {
       <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #555;">Report Type</label>
         <select id="markerType" style="background: white;">
-          <option value="ICE">🚨 ICE Activity</option>
-          <option value="PIG">🐷 PIG Activity</option>
+          ${categoryOptions}
         </select>
       </div>
       <div style="margin-bottom: 15px;">
@@ -346,22 +393,18 @@ export class ICEPIGTracker {
       return null;
     }
 
-    const color = this.getMarkerColor(marker);
-    const style = this.createMarkerStyle(color);
-
     const feature = new ol.Feature({
       geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat])),
       ...marker,
     });
 
-    feature.setStyle(style);
     this.vectorSource.addFeature(feature);
     this.displayedMarkerIds.add(marker.id);
 
     // Add pulse animation for new markers
     setTimeout(() => {
       const pixel = this.map.getPixelFromCoordinate(
-        ol.proj.fromLonLat([lng, marker.coords[0]])
+        ol.proj.fromLonLat([lon, lat])
       );
       if (pixel) {
         this.animateMarkerPulse(pixel);
@@ -379,35 +422,6 @@ export class ICEPIGTracker {
     document.body.appendChild(pulseEl);
 
     setTimeout(() => pulseEl.remove(), 2000);
-  }
-
-  getMarkerColor(marker) {
-    const baseColor = marker.type === "ICE" ? "red" : "blue";
-    const age = Date.now() - new Date(marker.timestamp).getTime();
-    const dayInMs = 24 * 60 * 60 * 1000;
-
-    if (age < dayInMs) return `${baseColor}-bright`;
-    if (age < 7 * dayInMs) return baseColor;
-    return `${baseColor}-faded`;
-  }
-
-  createMarkerStyle(color) {
-    const colors = {
-      "red-bright": "#ff0000",
-      red: "#cc0000",
-      "red-faded": "#880000",
-      "blue-bright": "#0000ff",
-      blue: "#0000cc",
-      "blue-faded": "#000088",
-    };
-
-    return new ol.style.Style({
-      image: new ol.style.Circle({
-        radius: 8,
-        fill: new ol.style.Fill({ color: colors[color] || "#ff0000" }),
-        stroke: new ol.style.Stroke({ color: "#fff", width: 2 }),
-      }),
-    });
   }
 
   async refreshMarkers() {
