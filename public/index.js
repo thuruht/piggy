@@ -9,12 +9,17 @@ export class ICEPIGTracker {
     this.vectorSource = new ol.source.Vector();
     this.markers = [];
     this.stats = { ice: 0, pig: 0, total: 0, today: 0 };
+    this.chartData = {
+      timeline: [],
+      types: { ice: 0, pig: 0 },
+      hourly: new Array(24).fill(0),
+      daily: new Array(7).fill(0),
+    };
     this.displayedMarkerIds = new Set();
     this.ws = null;
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.deferredPrompt = null;
-    // this.init(); // Initialization is now triggered in data-viz.js
   }
 
   generateMagicCode() {
@@ -156,8 +161,22 @@ export class ICEPIGTracker {
     document
       .getElementById("searchBtn")
       .addEventListener("click", () => this.searchLocation());
-    document.getElementById("searchInput").addEventListener("keyup", (e) => {
-      this.searchLocation();
+
+    this.searchTimeout = null;
+    document.getElementById("searchInput").addEventListener("keyup", () => {
+      clearTimeout(this.searchTimeout);
+      this.searchTimeout = setTimeout(() => this.searchLocation(), 300);
+    });
+
+    // Hide search results when clicking outside
+    document.addEventListener("click", (e) => {
+      const searchContainer = document.querySelector(".search-container");
+      if (searchContainer && !searchContainer.contains(e.target)) {
+        const searchResults = document.getElementById("searchResults");
+        if (searchResults) {
+          searchResults.style.display = "none";
+        }
+      }
     });
 
     // Keyboard shortcuts
@@ -1033,4 +1052,85 @@ ICEPIGTracker.prototype.updateUIText = function () {
   });
 };
 
-// The tracker is initialized in data-viz.js to ensure all scripts are loaded.
+ICEPIGTracker.prototype.updateStats = function () {
+  const today = new Date().toDateString();
+
+  this.stats = {
+    total: this.markers.length,
+    ice: this.markers.filter((m) => m.type === "ICE").length,
+    pig: this.markers.filter((m) => m.type === "PIG").length,
+    today: this.markers.filter(
+      (m) => new Date(m.timestamp).toDateString() === today
+    ).length,
+  };
+
+  this.animateStats();
+};
+
+ICEPIGTracker.prototype.animateStats = function () {
+  Object.keys(this.stats).forEach((key) => {
+    const element = document.querySelector(`#stat-${key} .stat-number`);
+    if (element) {
+      gsap.to(
+        { value: parseInt(element.textContent) || 0 },
+        {
+          value: this.stats[key],
+          duration: 1.5,
+          ease: "power2.out",
+          onUpdate: function () {
+            element.textContent = Math.round(this.targets()[0].value);
+          },
+        }
+      );
+    }
+  });
+};
+
+ICEPIGTracker.prototype.updateCharts = function () {
+  this.processChartData();
+  if (typeof this.renderTimelineChart === "function") {
+    this.renderTimelineChart();
+    this.renderTypeChart();
+    this.renderHeatmap();
+  }
+};
+
+ICEPIGTracker.prototype.processChartData = function () {
+  // Reset data
+  this.chartData.timeline = [];
+  this.chartData.types = { ice: 0, pig: 0 };
+  this.chartData.hourly.fill(0);
+  this.chartData.daily.fill(0);
+
+  // Process markers
+  const dailyCounts = {};
+
+  this.markers.forEach((marker) => {
+    const date = new Date(marker.timestamp);
+    const dateStr = date.toDateString();
+    const hour = date.getHours();
+    const day = date.getDay();
+
+    // Timeline data
+    if (!dailyCounts[dateStr]) {
+      dailyCounts[dateStr] = { date: dateStr, ice: 0, pig: 0 };
+    }
+    dailyCounts[dateStr][marker.type.toLowerCase()]++;
+
+    // Type counts
+    this.chartData.types[marker.type.toLowerCase()]++;
+
+    // Hourly distribution
+    this.chartData.hourly[hour]++;
+
+    // Daily distribution
+    this.chartData.daily[day]++;
+  });
+
+  this.chartData.timeline = Object.values(dailyCounts)
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(-30); // Last 30 days
+};
+
+
+// The tracker is initialized in main.js.
