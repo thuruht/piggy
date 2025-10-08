@@ -24,14 +24,17 @@ app.post("/api/upload-url", async (c) => {
   const { filename, contentType } = await c.req.json();
   const key = `media/${nanoid()}-${filename}`;
 
-  // Generate a signed URL for PUT request
-  const signedUrl = await c.env.LIVESTOCK_MEDIA.createSignedUrl("put", key, {
-    httpMetadata: { contentType },
-    expires: 3600, // URL expires in 1 hour
-  });
+  const presignedUrl = await c.env.LIVESTOCK_MEDIA.createPresignedUrl(
+    "PUT",
+    key,
+    {
+      expires: 3600, // URL expires in 1 hour
+      httpMetadata: { contentType },
+    },
+  );
 
   return c.json({
-    uploadUrl: signedUrl,
+    uploadUrl: presignedUrl,
     publicUrl: `/media/${key}`,
   });
 });
