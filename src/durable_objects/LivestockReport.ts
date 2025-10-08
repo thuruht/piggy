@@ -19,6 +19,7 @@ export class LivestockReport implements DurableObject {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
 
+      server.accept();
       this.sessions.add(server);
 
       server.addEventListener('close', () => {

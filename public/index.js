@@ -115,10 +115,8 @@ export class ICEPIGTracker {
     document
       .getElementById("searchBtn")
       .addEventListener("click", () => this.searchLocation());
-    document.getElementById("searchInput").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        this.searchLocation();
-      }
+    document.getElementById("searchInput").addEventListener("keyup", (e) => {
+      this.searchLocation();
     });
 
     // Keyboard shortcuts
@@ -340,9 +338,10 @@ export class ICEPIGTracker {
       return null;
     }
 
-    let lng = ((marker.coords[1] + 180) % 360) - 180;
+    const lon = marker.coords[0];
+    const lat = marker.coords[1];
 
-    if (isNaN(marker.coords[0]) || isNaN(lng)) {
+    if (isNaN(lon) || isNaN(lat)) {
       console.error("Invalid coordinates for marker:", marker);
       return null;
     }
@@ -351,7 +350,7 @@ export class ICEPIGTracker {
     const style = this.createMarkerStyle(color);
 
     const feature = new ol.Feature({
-      geometry: new ol.geom.Point(ol.proj.fromLonLat([lng, marker.coords[0]])),
+      geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat])),
       ...marker,
     });
 
@@ -929,32 +928,47 @@ export class ICEPIGTracker {
 
   async searchLocation() {
     const query = document.getElementById("searchInput").value;
-    if (!query) {
-      this.showToast("Please enter a location to search.", "error");
+    if (query.length < 3) {
+      document.getElementById("searchResults").style.display = "none";
       return;
     }
 
-    this.showToast(`Searching for "${query}"...`, "info");
     try {
       const response = await fetch(
         `/api/search?q=${encodeURIComponent(query)}`
       );
-      if (!response.ok) {
-        throw new Error("Network response was not ok.");
-      }
+      if (!response.ok) throw new Error("Search failed");
       const results = await response.json();
-
-      if (results.length > 0) {
-        const { lat, lon } = results[0];
-        this.showToast(`Location found. Moving map...`, "success");
-        this.panToLocation([parseFloat(lon), parseFloat(lat)]);
-      } else {
-        this.showToast(`Could not find "${query}".`, "error");
-      }
+      this.displaySearchResults(results);
     } catch (error) {
-      console.error("Nominatim search error:", error);
-      this.showToast("Failed to perform search.", "error");
+      console.error("Search error:", error);
+      this.showToast("Search failed", "error");
     }
+  }
+
+  displaySearchResults(results) {
+    console.log('Search results received:', results);
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+
+    if (results.length === 0) {
+      resultsContainer.style.display = "none";
+      return;
+    }
+
+    results.slice(0, 5).forEach((result) => {
+      const item = document.createElement("div");
+      item.className = "search-result-item";
+      item.textContent = result.display_name;
+      item.onclick = () => {
+        this.panToLocation([parseFloat(result.lon), parseFloat(result.lat)]);
+        document.getElementById("searchInput").value = result.display_name;
+        resultsContainer.style.display = "none";
+      };
+      resultsContainer.appendChild(item);
+    });
+
+    resultsContainer.style.display = "block";
   }
 
   panToLocation(lonLat) {
