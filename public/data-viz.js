@@ -1,100 +1,11 @@
 export function setupDataViz(tracker) {
-  tracker.chartData = {
-    timeline: [],
-    types: { ice: 0, pig: 0 },
-    hourly: new Array(24).fill(0),
-    daily: new Array(7).fill(0),
-  };
-
-  // Attach methods to the tracker instance
-  tracker.updateStats = updateStats;
-  tracker.animateStats = animateStats;
-  tracker.updateCharts = updateCharts;
-  tracker.processChartData = processChartData;
+  // Attach visualization and UI methods to the tracker instance
   tracker.renderTimelineChart = renderTimelineChart;
   tracker.renderTypeChart = renderTypeChart;
   tracker.renderHeatmap = renderHeatmap;
   tracker.toggleSidebar = toggleSidebar;
   tracker.closeSidebar = closeSidebar;
   tracker.animateEntrance = animateEntrance;
-}
-
-function updateStats() {
-  const today = new Date().toDateString();
-
-  this.stats = {
-    total: this.markers.length,
-    ice: this.markers.filter((m) => m.type === "ICE").length,
-    pig: this.markers.filter((m) => m.type === "PIG").length,
-    today: this.markers.filter(
-      (m) => new Date(m.timestamp).toDateString() === today
-    ).length,
-  };
-
-  this.animateStats();
-}
-
-function animateStats() {
-  Object.keys(this.stats).forEach((key) => {
-    const element = document.querySelector(`#stat-${key} .stat-number`);
-    if (element) {
-      gsap.to(
-        { value: 0 },
-        {
-          value: this.stats[key],
-          duration: 1.5,
-          ease: "power2.out",
-          onUpdate: function () {
-            element.textContent = Math.round(this.targets()[0].value);
-          },
-        }
-      );
-    }
-  });
-}
-
-function updateCharts() {
-  this.processChartData();
-  this.renderTimelineChart();
-  this.renderTypeChart();
-  this.renderHeatmap();
-}
-
-function processChartData() {
-  // Reset data
-  this.chartData.timeline = [];
-  this.chartData.types = { ice: 0, pig: 0 };
-  this.chartData.hourly.fill(0);
-  this.chartData.daily.fill(0);
-
-  // Process markers
-  const dailyCounts = {};
-
-  this.markers.forEach((marker) => {
-    const date = new Date(marker.timestamp);
-    const dateStr = date.toDateString();
-    const hour = date.getHours();
-    const day = date.getDay();
-
-    // Timeline data
-    if (!dailyCounts[dateStr]) {
-      dailyCounts[dateStr] = { date: dateStr, ice: 0, pig: 0 };
-    }
-    dailyCounts[dateStr][marker.type.toLowerCase()]++;
-
-    // Type counts
-    this.chartData.types[marker.type.toLowerCase()]++;
-
-    // Hourly distribution
-    this.chartData.hourly[hour]++;
-
-    // Daily distribution
-    this.chartData.daily[day]++;
-  });
-
-  this.chartData.timeline = Object.values(dailyCounts)
-    .sort((a, b) => new Date(a.date) - new Date(b.date))
-    .slice(-30); // Last 30 days
 }
 
 function renderTimelineChart() {
