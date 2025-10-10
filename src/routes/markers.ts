@@ -1,9 +1,10 @@
 import { Hono } from "hono";
-import { Env, Marker } from "../types";
+import { Env, Marker, MarkerFromDB, NewMarker, MarkerMagicCode } from "../types";
 import { CONFIG } from "../config";
 import { rateLimitMiddleware } from "../middleware/rateLimit";
 import { sanitizeHTML, validateMarkerInput } from "../utils/sanitize";
 import { nanoid } from "nanoid";
+import { getTrackerStub } from "../utils/durable";
 
 const markers = new Hono<{ Bindings: Env }>();
 
@@ -24,9 +25,9 @@ markers.get("/", async (c) => {
     `
     )
       .bind(CONFIG.REPORT_THRESHOLD)
-      .all();
+      .all<MarkerFromDB>();
 
-    const markers = result.results.map((row: any) => ({
+    const markers: Marker[] = result.results.map((row) => ({
       id: row.id,
       title: row.title,
       type: row.type,
@@ -61,8 +62,7 @@ markers.post("/", async (c) => {
     }
 
     // Sanitize inputs
-    const marker: any = {
-      // Using any here because of the flexible creation
+    const marker: NewMarker = {
       id: nanoid(),
       title: sanitizeHTML(body.title.substring(0, CONFIG.MAX_TITLE_LENGTH)),
       type: body.type,
@@ -109,8 +109,7 @@ markers.post("/", async (c) => {
 
     // Broadcast via Durable Object
     try {
-      const durableId = c.env.LIVESTOCK_REPORTS.idFromName("tracker");
-      const durableStub = c.env.LIVESTOCK_REPORTS.get(durableId);
+      const durableStub = getTrackerStub(c.env);
       await durableStub.fetch("http://tracker/broadcast", {
         method: "POST",
         body: JSON.stringify({ type: "marker_added", marker }),
@@ -133,13 +132,13 @@ markers.delete("/:id", async (c) => {
     const magicCode = c.req.header("X-Magic-Code");
 
     // Verify ownership via magic code
-    const marker: any = await c.env.LIVESTOCK_DB.prepare(
+    const marker = await c.env.LIVESTOCK_DB.prepare(
       `
       SELECT magicCode FROM markers WHERE id = ?
     `
     )
       .bind(id)
-      .first();
+      .first<MarkerMagicCode>();
 
     if (!marker) {
       return c.json({ error: "Marker not found" }, 404);

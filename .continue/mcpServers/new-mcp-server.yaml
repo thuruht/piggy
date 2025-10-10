@@ -6,5 +6,7 @@ mcpServers:
     command: npx
     args:
       - -y
-      - <your-mcp-server>
+      - mcp-remote
+      - --mcp-server-url
+      - https://casb.mcp.cloudflare.com/sse
     env: {}

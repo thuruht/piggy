@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "cloudflare-docs": {
+      "url": "https://docs.mcp.cloudflare.com/sse"
+    },
+    "cloudflare-workers-builds": {
+      "url": "https://builds.mcp.cloudflare.com/sse"
+    },
+    "cloudflare-observability": {
+      "url": "https://observability.mcp.cloudflare.com/sse"
+    },
+    "cloudflare-ai-gateway": {
+      "url": "https://ai-gateway.mcp.cloudflare.com/sse"
+    },
+    "cloudflare-browser-rendering": {
+      "url": "https://browser.mcp.cloudflare.com/sse"
+    },
+    "cloudflare-casb": {
+      "url": "https://casb.mcp.cloudflare.com/sse"
+    }
+  }
+}

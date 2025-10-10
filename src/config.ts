@@ -19,5 +19,12 @@ export const CONFIG = {
   REFRESH_INTERVAL: 60000, // 60 seconds for client refresh
   MAX_TITLE_LENGTH: 200,
   MAX_DESCRIPTION_LENGTH: 1000,
-  MAX_COMMENT_LENGTH: 500
+  MAX_COMMENT_LENGTH: 500,
+  DO_URLS: {
+    WEBSOCKET: "http://tracker/websocket",
+    BROADCAST: "http://tracker/broadcast",
+  },
+  DO_EVENTS: {
+    MARKER_ADDED: "marker_added",
+  }
 } as const;

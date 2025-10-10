@@ -1,4 +1,4 @@
-import { createLayerControl } from "./map-layers.js";
+11l12import { createLayerControl } from "./map-layers.js";
 import { categories } from "./categories.js";
 
 export class ICEPIGTracker {
@@ -280,6 +280,13 @@ export class ICEPIGTracker {
     saveBtn.textContent = "Saving...";
     saveBtn.disabled = true;
 
+    const progressContainer = document.createElement('div');
+    progressContainer.className = 'progress-container';
+    const progressBar = document.createElement('div');
+    progressBar.className = 'progress-bar';
+    progressContainer.appendChild(progressBar);
+    saveBtn.parentElement.appendChild(progressContainer);
+
     try {
       let successfulUploads = [];
       let failedUploads = 0;
@@ -287,8 +294,11 @@ export class ICEPIGTracker {
       if (files.length > 0) {
         saveBtn.textContent = `Uploading ${files.length} file(s)...`;
 
-        const uploadPromises = Array.from(files).map((file) =>
-          this.uploadMedia(file, marker.id)
+        const uploadPromises = Array.from(files).map((file, index) =>
+          this.uploadMedia(file, marker.id).then(url => {
+            progressBar.style.width = `${((index + 1) / files.length) * 100}%`;
+            return url;
+          })
         );
         const results = await Promise.allSettled(uploadPromises);
 
@@ -326,6 +336,7 @@ export class ICEPIGTracker {
     } finally {
       saveBtn.textContent = originalText;
       saveBtn.disabled = false;
+      progressContainer.remove();
     }
   }
 
@@ -506,15 +517,20 @@ export class ICEPIGTracker {
 
   showMarkerDetails(feature) {
     const data = feature.getProperties();
-    const mediaHtml =
-      data.media && data.media.length > 0
-        ? data.media
-            .map(
-              (url) =>
-                `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`
-            )
-            .join("")
-        : "";
+    const mediaHtml = data.media && data.media.length > 0
+      ? data.media.map(url => {
+          const fileExtension = url.split('.').pop().toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'svg'].includes(fileExtension)) {
+            return `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`;
+          } else if (['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(fileExtension)) {
+            return `<video controls class="media-preview"><source src="${url}" type="video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}"></video>`;
+          } else if (['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'].includes(fileExtension)) {
+            return `<audio controls class="media-preview"><source src="${url}" type="audio/${fileExtension}"></audio>`;
+          } else {
+            return `<a href="${url}" target="_blank">View Media</a>`;
+          }
+        }).join("")
+      : "";
 
     // Check session storage for upvote/report status
     const upvoteKey = `upvoted_${data.id}`;
@@ -531,7 +547,7 @@ export class ICEPIGTracker {
     ).toLocaleString()}</span>
   </div>
   <p>${data.description || "No description"}</p>
-  ${mediaHtml}
+  <div class="media-container">${mediaHtml}</div>
   
   <div class="modal-actions">
     <button id="report-btn" onclick="tracker.reportMarker('${data.id}')" ${
@@ -970,9 +986,13 @@ export class ICEPIGTracker {
       return;
     }
 
+    const searchButton = document.getElementById("searchBtn");
+    searchButton.disabled = true;
+    searchButton.textContent = "...";
+
     try {
       const response = await fetch(
-        `/api/search?q=${encodeURIComponent(query)}`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`
       );
       if (!response.ok) throw new Error("Search failed");
       const results = await response.json();
@@ -980,20 +1000,23 @@ export class ICEPIGTracker {
     } catch (error) {
       console.error("Search error:", error);
       this.showToast("Search failed", "error");
+    } finally {
+      searchButton.disabled = false;
+      searchButton.textContent = "Search";
     }
   }
 
   displaySearchResults(results) {
-    console.log('Search results received:', results);
     const resultsContainer = document.getElementById("searchResults");
     resultsContainer.innerHTML = "";
 
     if (results.length === 0) {
-      resultsContainer.style.display = "none";
+      resultsContainer.innerHTML = '<div class="search-result-item">No results found.</div>';
+      resultsContainer.style.display = "block";
       return;
     }
 
-    results.slice(0, 5).forEach((result) => {
+    results.forEach((result) => {
       const item = document.createElement("div");
       item.className = "search-result-item";
       item.textContent = result.display_name;

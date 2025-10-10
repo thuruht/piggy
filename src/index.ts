@@ -4,8 +4,9 @@ import { Env } from "./types";
 import markers from "./routes/markers";
 import reports from "./routes/reports";
 import upvotes from "./routes/upvotes";
-import search from "./routes/search";
+import comments from "./routes/comments";
 import { CONFIG } from "./config";
+import { getTrackerStub } from "./utils/durable";
 
 import { monitoringMiddleware } from "./middleware/monitoring";
 
@@ -18,7 +19,7 @@ app.use("/api/*", monitoringMiddleware);
 app.route("/api/markers", markers);
 app.route("/api/reports", reports);
 app.route("/api/upvotes", upvotes);
-app.route("/api/search", search);
+app.route("/api/comments", comments);
 
 app.post("/api/upload-url", async (c) => {
   const { filename, contentType } = await c.req.json();
@@ -40,9 +41,8 @@ app.post("/api/upload-url", async (c) => {
 });
 
 app.get("/ws", async (c) => {
-  const durableId = c.env.LIVESTOCK_REPORTS.idFromName("tracker");
-  const durableStub = c.env.LIVESTOCK_REPORTS.get(durableId);
-  return durableStub.fetch("http://tracker/websocket", c.req.raw);
+  const durableStub = getTrackerStub(c.env);
+  return durableStub.fetch(CONFIG.DO_URLS.WEBSOCKET, c.req.raw);
 });
 
 // Serve static assets from the assets service.

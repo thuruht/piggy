@@ -9,6 +9,35 @@ export interface Marker {
   magicCode: string;
   media: string[];
   reportCount?: number;
+  upvotes?: number;
+}
+
+export interface MarkerFromDB {
+  id: string;
+  title: string;
+  type: "ICE" | "PIG";
+  description: string;
+  latitude: string;
+  longitude: string;
+  timestamp: string;
+  magicCode: string;
+  mediaUrls: string | null;
+  upvotes: number | null;
+}
+
+export interface NewMarker {
+  id: string;
+  title: string;
+  type: "ICE" | "PIG";
+  description: string;
+  coords: [number, number];
+  timestamp: string;
+  magicCode: string;
+  media: string[];
+}
+
+export interface MarkerMagicCode {
+  magicCode: string;
 }
 
 export interface Comment {
