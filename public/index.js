@@ -404,6 +404,10 @@ export class ICEPIGTracker {
       return null;
     }
 
+    if (!marker.coords && marker.lon && marker.lat) {
+      marker.coords = [marker.lon, marker.lat];
+    }
+
     const lon = marker.coords[0];
     const lat = marker.coords[1];
 
