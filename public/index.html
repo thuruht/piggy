@@ -22,66 +22,55 @@
           <p class="tagline" data-translate-key="app_tagline">
             Kansas City Tracker
           </p>
-          <div class="stats-bar">
-            <div class="stat-item" id="stat-total">
-              <span class="stat-number">0</span>
-              <span class="stat-label" data-translate-key="total_reports"
-                >Total Reports</span
-              >
-            </div>
-            <div class="stat-item" id="stat-ice">
-              <span class="stat-number">0</span>
-              <span class="stat-label" data-translate-key="ice">ICE</span>
-            </div>
-            <div class="stat-item" id="stat-pig">
-              <span class="stat-number">0</span>
-              <span class="stat-label" data-translate-key="pig">PIG</span>
-            </div>
-            <div class="stat-item" id="stat-today">
-              <span class="stat-number">0</span>
-              <span class="stat-label" data-translate-key="today">Today</span>
-            </div>
-          </div>
           <div class="controls">
-            <div class="search-container">
-              <input
-                type="text"
-                id="searchInput"
-                placeholder="Search location..."
-              />
-              <button id="searchBtn">Search</button>
-              <div id="searchResults"></div>
+            <div class="search-add-container">
+              <div class="search-container">
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search location..."
+                />
+                <div id="searchResults"></div>
+              </div>
+              <button
+                id="addBtn"
+                class="primary-btn"
+                data-translate-key="add_new_marker_short"
+              >
+                Add
+              </button>
             </div>
-            <button
-              id="addBtn"
-              class="primary-btn"
-              data-translate-key="add_new_marker"
-            >
-              <span class="btn-icon">+</span>
-              Add New Report
-            </button>
-            <button id="vizBtn" class="secondary-btn" data-translate-key="data">
-              <span class="btn-icon">📊</span>
-              Data
-            </button>
-            <select id="langSelect" class="lang-select">
-              <option value="en">🌍 English</option>
-              <option value="es">🌎 Español</option>
-              <option value="fr">🌍 Français</option>
-              <option value="ar">🌍 العربية</option>
-              <option value="zh">🌏 中文</option>
-              <option value="am">🌍 አማርኛ</option>
-              <option value="ht">🌎 Kreyòl</option>
-              <option value="kar">🌏 Karen</option>
-              <option value="ku">🌍 Kurdî</option>
-              <option value="my">🌏 မြန်မာ</option>
-              <option value="ne">🌍 नेपाली</option>
-              <option value="pt">🌎 Português</option>
-              <option value="so">🌍 Soomaali</option>
-              <option value="sw">🌍 Kiswahili</option>
-              <option value="ur">🌍 اردو</option>
-              <option value="vi">🌏 Tiếng Việt</option>
-            </select>
+            <div class="secondary-controls">
+              <button
+                id="vizBtn"
+                class="secondary-btn"
+                data-translate-key="data"
+              >
+                Data
+              </button>
+              <select id="langSelect" class="lang-select">
+                <option value="en">🌍 English</option>
+                <option value="es">🌎 Español</option>
+                <option value="fr">🌍 Français</option>
+                <option value="ar">🌍 العربية</option>
+                <option value="zh">🌏 中文</option>
+                <option value="am">🌍 አማርኛ</option>
+                <option value="ht">🌎 Kreyòl</option>
+                <option value="kar">🌏 Karen</option>
+                <option value="ku">🌍 Kurdî</option>
+                <option value="my">🌏 မြန်မာ</option>
+                <option value="ne">🌍 नेपाली</option>
+                <option value="pt">🌎 Português</option>
+                <option value="so">🌍 Soomaali</option>
+                <option value="sw">🌍 Kiswahili</option>
+                <option value="ur">🌍 اردو</option>
+                <option value="vi">🌏 Tiếng Việt</option>
+              </select>
+              <div class="online-indicator">
+                <span id="online-count"></span>
+                <span data-translate-key="online">online</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="privacy-notice" data-translate-key="privacy_notice">
