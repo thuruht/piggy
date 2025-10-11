@@ -403,6 +403,19 @@ textarea {
   .lang-select {
     min-width: 150px;
   }
+
+  #searchResults {
+    font-size: 16px;
+  }
+
+  .search-result-item {
+    padding: 15px 10px;
+  }
+
+  .secondary-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
 #map-overlay {
