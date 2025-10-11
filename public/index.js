@@ -1,4 +1,4 @@
-11l12import { createLayerControl } from "./map-layers.js";
+import { createLayerControl } from "./map-layers.js";
 import { categories } from "./categories.js";
 
 export class ICEPIGTracker {
@@ -35,7 +35,7 @@ export class ICEPIGTracker {
       this.setupMap();
       this.setupLegend();
       await this.loadMarkers();
-      this.animateEntrance();
+      // this.animateEntrance(); // This function is not defined
       this.startAutoRefresh();
       this.setupRefreshButton();
       this.connectWebSocket();
@@ -158,9 +158,6 @@ export class ICEPIGTracker {
     document.getElementById("langSelect").onchange = (e) =>
       this.changeLang(e.target.value);
     document.querySelector(".close").onclick = () => this.closeModal();
-    document
-      .getElementById("searchBtn")
-      .addEventListener("click", () => this.searchLocation());
 
     this.searchTimeout = null;
     document.getElementById("searchInput").addEventListener("keyup", () => {
@@ -499,7 +496,7 @@ export class ICEPIGTracker {
       });
     });
 
-    document.querySelector(".controls").appendChild(refreshBtn);
+    document.querySelector(".secondary-controls").appendChild(refreshBtn);
   }
 
   async loadMarkers() {
@@ -723,14 +720,10 @@ export class ICEPIGTracker {
   }
 
   updateActiveUsers(count) {
-    let userIndicator = document.getElementById("active-users");
-    if (!userIndicator) {
-      userIndicator = document.createElement("div");
-      userIndicator.id = "active-users";
-      userIndicator.className = "active-users-indicator";
-      document.querySelector(".controls").appendChild(userIndicator);
+    const onlineCount = document.getElementById("online-count");
+    if (onlineCount) {
+      onlineCount.textContent = count;
     }
-    userIndicator.textContent = `👥 ${count} online`;
   }
 
   sendUserLocation() {
@@ -818,15 +811,13 @@ export class ICEPIGTracker {
     const btn = document.getElementById("addBtn");
 
     if (this.addMode) {
-      btn.innerHTML = `<span class="btn-icon">✕</span> Done`;
+      btn.textContent = "Done";
       btn.style.background = "linear-gradient(45deg, #95a5a6, #7f8c8d)";
       this.showToast(
         this.t("add_marker_instruction") || "Click on the map to add a report"
       );
     } else {
-      btn.innerHTML = `<span class="btn-icon">+</span> ${this.t(
-        "add_new_marker"
-      )}`;
+      btn.textContent = "Add";
       btn.style.background = "linear-gradient(45deg, #ff6b6b, #ee5a52)";
     }
 
@@ -1080,37 +1071,12 @@ ICEPIGTracker.prototype.updateUIText = function () {
 };
 
 ICEPIGTracker.prototype.updateStats = function () {
-  const today = new Date().toDateString();
-
-  this.stats = {
-    total: this.markers.length,
-    ice: this.markers.filter((m) => m.type === "ICE").length,
-    pig: this.markers.filter((m) => m.type === "PIG").length,
-    today: this.markers.filter(
-      (m) => new Date(m.timestamp).toDateString() === today
-    ).length,
-  };
-
-  this.animateStats();
+  // This function is no longer in use since the stats bar was removed.
+  // We'll keep it here in case we want to add it back later.
 };
 
 ICEPIGTracker.prototype.animateStats = function () {
-  Object.keys(this.stats).forEach((key) => {
-    const element = document.querySelector(`#stat-${key} .stat-number`);
-    if (element) {
-      gsap.to(
-        { value: parseInt(element.textContent) || 0 },
-        {
-          value: this.stats[key],
-          duration: 1.5,
-          ease: "power2.out",
-          onUpdate: function () {
-            element.textContent = Math.round(this.targets()[0].value);
-          },
-        }
-      );
-    }
-  });
+  // This function is no longer in use since the stats bar was removed.
 };
 
 ICEPIGTracker.prototype.updateCharts = function () {
