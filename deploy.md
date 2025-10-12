@@ -1,31 +1,51 @@
-# Deploy to pigmap.org
+# Deployment Guide
 
-## Setup
-1. Install Wrangler: `npm install -g wrangler`
-2. Login: `wrangler auth login`
-3. Install dependencies: `npm install`
+This document outlines the process for deploying the PigMap.org application to Cloudflare.
 
-## Deploy
-```bash
-wrangler deploy
-```
+## Prerequisites
 
-## Existing Bindings Used:
-- **LIVESTOCK_MEDIA** (R2): Media uploads
-- **PIGMAP_CONFIG** (KV): Markers and comments storage  
-- **LIVESTOCK_REPORTS** (Durable Object): Real-time updates
-- **LIVESTOCK_DB** (D1): Database (optional)
-- **RATE_LIMITER**: Request limiting
+1.  **Install Wrangler:**
+    ```bash
+    npm install -g wrangler
+    ```
+2.  **Authenticate with Cloudflare:**
+    ```bash
+    wrangler login
+    ```
+3.  **Install Project Dependencies:**
+    ```bash
+    npm install
+    ```
 
-## Routes:
-- pigmap.org/*
-- www.pigmap.org/*
-- kc.pigmap.org/*
-- kcmo.pigmap.org/*
-- kansascity.pigmap.org/*
+## Deployment Steps
 
-## Privacy Features:
-- No IP logging
-- Anonymous reporting
-- Magic code authentication
-- Privacy-first headers
+1.  **Run Database Migrations:**
+    Before deploying, ensure your remote D1 database schema is up-to-date:
+    ```bash
+    npx wrangler d1 migrations apply livestock --remote
+    ```
+
+2.  **Deploy the Application:**
+    ```bash
+    npm run deploy
+    ```
+
+## Cloudflare Bindings
+
+The application relies on the following Cloudflare bindings, which must be configured in `wrangler.toml`:
+
+-   **LIVESTOCK_DB (D1):** The primary database for storing all marker, comment, and report data.
+-   **LIVESTOCK_MEDIA (R2):** Used for storing user-uploaded images and videos.
+-   **PIGMAP_CONFIG (KV):** Used for session tracking to prevent duplicate reports and upvotes.
+-   **LIVESTOCK_REPORTS (Durable Object):** Manages real-time WebSocket connections for live updates.
+-   **RATE_LIMITER:** Provides rate limiting functionality for the API endpoints.
+
+## Routes
+
+The application is configured to be served from the following routes:
+
+-   pigmap.org/*
+-   www.pigmap.org/*
+-   kc.pigmap.org/*
+-   kcmo.pigmap.org/*
+-   kansascity.pigmap.org/*

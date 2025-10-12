@@ -4,21 +4,10 @@ import { nanoid } from "nanoid";
 
 const upvotes = new Hono<{ Bindings: Env }>();
 
-upvotes.post("/:markerId", async (c) => {
-  const { markerId } = c.req.param();
-  const { type } = await c.req.json();
-  const clientIp = c.req.header("cf-connecting-ip");
-
-  if (!clientIp) {
-    return c.json({ error: "Could not determine client IP" }, 400);
-  }
-
-  const upvoteKey = `upvoted_${type}_${markerId}_${clientIp}`;
-  const hasUpvoted = await c.env.PIGMAP_CONFIG.get(upvoteKey);
-
-  if (hasUpvoted) {
-    return c.json({ error: "Already upvoted" }, 429);
-  }
+// POST /api/upvotes/:id
+upvotes.post("/:id", async (c) => {
+  const rateLimitResult = await rateLimitMiddleware(c, "upvotes"); // Using correct rate limit
+  if (rateLimitResult) return rateLimitResult;
 
   try {
     // Add to upvotes table

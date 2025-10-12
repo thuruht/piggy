@@ -5,8 +5,12 @@ import { rateLimitMiddleware } from "../middleware/rateLimit";
 import { sanitizeHTML, validateMarkerInput } from "../utils/sanitize";
 import { nanoid } from "nanoid";
 import { getTrackerStub } from "../utils/durable";
+import reports from "./reports";
 
 const markers = new Hono<{ Bindings: Env }>();
+
+// Mount other routes
+markers.route("/", reports);
 
 // GET /api/markers - Fetch all markers
 markers.get("/", async (c) => {
@@ -92,7 +96,7 @@ markers.post("/", async (c) => {
       coords: body.coords,
       timestamp: new Date().toISOString(),
       magicCode: body.magicCode || nanoid(10),
-      media: body.media || [],
+      media: Array.isArray(body.media) ? body.media : [],
     };
 
     const expiresAt = new Date();
