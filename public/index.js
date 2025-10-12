@@ -35,7 +35,8 @@ export class ICEPIGTracker {
       this.setupMap();
       this.setupLegend();
       await this.loadMarkers();
-      // this.animateEntrance(); // This function is not defined
+      this.applyFilters();
+      this.animateEntrance();
       this.startAutoRefresh();
       this.setupRefreshButton();
       this.connectWebSocket();
@@ -127,26 +128,38 @@ export class ICEPIGTracker {
   getMarkerStyle(feature) {
     const type = feature.get("type");
     const category = categories[type] || categories.OTHER;
-    const color = category.color;
+    let color = category.color;
     const iconUnicode = category.unicode;
+    const timestamp = feature.get("timestamp");
+    const isNew = (new Date() - new Date(timestamp)) < 24 * 60 * 60 * 1000;
+    const isArchived = feature.get("isArchived");
+
+    if (isArchived) {
+      color = "#95a5a6"; // Grey out archived markers
+    }
+
+    const isOngoing = feature.get("upvoteType") === "ongoing";
+
+    const svg = `
+      <svg width="30" height="42" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
+          </filter>
+        </defs>
+        <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${color}" ${isNew && !isArchived ? 'stroke="#00ff00" stroke-width="2"' : ''} filter="url(#shadow)"/>
+        <style>
+          .icon { font-family: "tabler-icons"; font-size: 18px; fill: white; }
+        </style>
+        <text x="15" y="19" class="icon" text-anchor="middle">${iconUnicode}</text>
+        ${isOngoing && !isArchived ? '<circle cx="22" cy="8" r="4" fill="orange" />' : ''}
+      </svg>
+    `;
 
     return new ol.style.Style({
       image: new ol.style.Icon({
         anchor: [0.5, 1],
-        src: `data:image/svg+xml,${encodeURIComponent(`
-          <svg width="30" height="42" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-                <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
-              </filter>
-            </defs>
-            <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${color}" filter="url(#shadow)"/>
-            <style>
-              .icon { font-family: "tabler-icons"; font-size: 18px; fill: white; }
-            </style>
-            <text x="15" y="19" class="icon" text-anchor="middle">${iconUnicode}</text>
-          </svg>
-        `)}`,
+        src: `data:image/svg+xml,${encodeURIComponent(svg)}`,
       }),
     });
   }
@@ -184,6 +197,11 @@ export class ICEPIGTracker {
         this.toggleSidebar();
       }
     });
+
+    // Filter control
+    document.getElementById("statusFilter").addEventListener("change", () => this.applyFilters());
+    document.getElementById("ongoingFilter").addEventListener("change", () => this.applyFilters());
+    document.getElementById("newFilter").addEventListener("change", () => this.applyFilters());
   }
 
   async onMapClick(evt) {
@@ -500,15 +518,21 @@ export class ICEPIGTracker {
   }
 
   async loadMarkers() {
+    this.showLoadingIndicator();
     try {
       const response = await fetch("/api/markers");
       const markers = await response.json();
       this.markers = markers;
+      this.vectorSource.clear();
+      this.displayedMarkerIds.clear();
       this.updateStats();
       markers.forEach((marker) => this.addMarkerToMap(marker));
       this.updateCharts();
+      this.applyFilters(); // Apply initial filters
     } catch (error) {
       console.error("Failed to load markers:", error);
+    } finally {
+      this.hideLoadingIndicator();
     }
   }
 
@@ -530,9 +554,11 @@ export class ICEPIGTracker {
       : "";
 
     // Check session storage for upvote/report status
-    const upvoteKey = `upvoted_${data.id}`;
+    const upvoteKey = `upvoted_regular_${data.id}`;
+    const ongoingUpvoteKey = `upvoted_ongoing_${data.id}`;
     const reportKey = `reported_${data.id}`;
     const alreadyUpvoted = sessionStorage.getItem(upvoteKey);
+    const alreadyOngoingUpvoted = sessionStorage.getItem(ongoingUpvoteKey);
     const alreadyReported = sessionStorage.getItem(reportKey);
 
     document.getElementById("modal-body").innerHTML = `
@@ -552,12 +578,17 @@ export class ICEPIGTracker {
     }>
       ${alreadyReported ? "✓ Reported" : "⚠ Report"}
     </button>
-    <button id="upvote-btn" onclick="tracker.upvoteMarker('${data.id}')" ${
+    <button id="upvote-btn-regular" onclick="tracker.upvoteMarker('${data.id}', 'regular')" ${
       alreadyUpvoted ? "disabled" : ""
     }>
       👍 ${
         alreadyUpvoted ? this.t("upvoted") : this.t("upvote")
       } (<span id="upvote-count">${data.upvotes || 0}</span>)
+    </button>
+    <button id="upvote-btn-ongoing" onclick="tracker.upvoteMarker('${data.id}', 'ongoing')" ${
+      alreadyOngoingUpvoted ? "disabled" : ""
+    }>
+      👀 ${this.t("still_here")}
     </button>
   </div>
 
@@ -584,13 +615,15 @@ export class ICEPIGTracker {
     document.getElementById("modal").style.display = "block";
   }
 
-  async upvoteMarker(markerId) {
-    const upvoteBtn = document.getElementById("upvote-btn");
+  async upvoteMarker(markerId, type = "regular") {
+    const upvoteBtn = document.getElementById(`upvote-btn-${type}`);
     if (!upvoteBtn || upvoteBtn.disabled) return;
 
     try {
       const response = await fetch(`/api/upvotes/${markerId}`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, magicCode: this.magicCode }),
       });
       if (!response.ok) {
         const err = await response.json();
@@ -598,14 +631,22 @@ export class ICEPIGTracker {
       }
 
       const data = await response.json();
-      sessionStorage.setItem(`upvoted_${markerId}`, "true");
+      sessionStorage.setItem(`upvoted_${type}_${markerId}`, "true");
 
       upvoteBtn.disabled = true;
-      upvoteBtn.innerHTML = `👍 ${this.t("upvoted")} (<span id="upvote-count">${
-        data.upvotes
-      }</span>)`;
 
-      this.showToast("Upvoted!", "success");
+      const upvoteCountSpan = document.getElementById("upvote-count");
+      if(upvoteCountSpan) {
+        upvoteCountSpan.textContent = data.upvotes;
+      }
+
+      if (type === "ongoing") {
+        upvoteBtn.innerHTML = `👀 ${this.t("still_here")}`;
+        this.showToast("Marker extended for 24 hours!", "success");
+      } else {
+        upvoteBtn.innerHTML = `👍 ${this.t("upvoted")} (${data.upvotes})`;
+        this.showToast("Upvoted!", "success");
+      }
     } catch (error) {
       console.error("Upvote error:", error);
       this.showToast(error.message, "error");
@@ -977,13 +1018,17 @@ export class ICEPIGTracker {
       return;
     }
 
-    const searchButton = document.getElementById("searchBtn");
-    searchButton.disabled = true;
-    searchButton.textContent = "...";
+    const searchButton = document.getElementById("addBtn");
+    if (searchButton) {
+      searchButton.disabled = true;
+      searchButton.textContent = "...";
+    }
 
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          query
+        )}&format=json&limit=5`
       );
       if (!response.ok) throw new Error("Search failed");
       const results = await response.json();
@@ -992,8 +1037,10 @@ export class ICEPIGTracker {
       console.error("Search error:", error);
       this.showToast("Search failed", "error");
     } finally {
-      searchButton.disabled = false;
-      searchButton.textContent = "Search";
+      if (searchButton) {
+        searchButton.disabled = false;
+        searchButton.textContent = "Add";
+      }
     }
   }
 
@@ -1030,6 +1077,68 @@ export class ICEPIGTracker {
       zoom: 14,
       duration: 1500,
       easing: ol.easing.easeOut,
+    });
+  }
+
+  animateEntrance() {
+    gsap.from("#header", {
+      y: -100,
+      opacity: 0,
+      duration: 0.8,
+      ease: "power2.out",
+    });
+    gsap.from(".stat-item", {
+      y: 50,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.1,
+      delay: 0.3,
+      ease: "back.out(1.7)",
+    });
+    gsap.from("#map-container", {
+      scale: 0.9,
+      opacity: 0,
+      duration: 1,
+      delay: 0.5,
+      ease: "power2.out",
+    });
+    gsap.from(".legend", {
+      x: 100,
+      opacity: 0,
+      duration: 0.6,
+      delay: 0.8,
+    });
+  }
+
+  applyFilters() {
+    const status = document.getElementById("statusFilter").value;
+    const isOngoing = document.getElementById("ongoingFilter").checked;
+    const isNew = document.getElementById("newFilter").checked;
+
+    this.vectorSource.getFeatures().forEach(feature => {
+      const marker = feature.getProperties();
+      let visible = true;
+
+      // Status filter
+      if (status === 'active') {
+        visible = visible && !marker.isArchived;
+      } else if (status === 'archived') {
+        visible = visible && marker.isArchived;
+      }
+
+      // Ongoing filter
+      if (isOngoing) {
+        visible = visible && marker.upvoteType === 'ongoing';
+      }
+
+      // New filter
+      if (isNew) {
+        const timestamp = marker.timestamp;
+        const isNewMarker = (new Date() - new Date(timestamp)) < 24 * 60 * 60 * 1000;
+        visible = visible && isNewMarker;
+      }
+
+      feature.setStyle(visible ? this.getMarkerStyle(feature) : null);
     });
   }
 }

@@ -38,6 +38,21 @@
               </button>
             </div>
             <div class="secondary-controls">
+              <div class="filter-controls">
+                <select id="statusFilter">
+                  <option value="all" data-translate-key="filter_all">All</option>
+                  <option value="active" data-translate-key="filter_active">Active</option>
+                  <option value="archived" data-translate-key="filter_archived">Archived</option>
+                </select>
+                <label>
+                  <input type="checkbox" id="ongoingFilter" />
+                  <span data-translate-key="filter_ongoing">Ongoing</span>
+                </label>
+                <label>
+                  <input type="checkbox" id="newFilter" />
+                  <span data-translate-key="filter_new">New</span>
+                </label>
+              </div>
               <button
                 id="vizBtn"
                 class="secondary-btn"
