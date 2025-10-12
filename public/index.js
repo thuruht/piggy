@@ -538,6 +538,27 @@ export class ICEPIGTracker {
 
   showMarkerDetails(feature) {
     const data = feature.getProperties();
+    const modalBody = document.getElementById("modal-body");
+    modalBody.innerHTML = ''; // Clear previous content
+
+    const title = document.createElement('h3');
+    title.textContent = data.title;
+    modalBody.appendChild(title);
+
+    const meta = document.createElement('div');
+    meta.className = 'modal-meta';
+    const type = document.createElement('span');
+    type.innerHTML = `<strong>Type:</strong> ${data.type}`;
+    meta.appendChild(type);
+    const posted = document.createElement('span');
+    posted.innerHTML = `<strong>Posted:</strong> ${new Date(data.timestamp).toLocaleString()}`;
+    meta.appendChild(posted);
+    modalBody.appendChild(meta);
+
+    const description = document.createElement('p');
+    description.textContent = data.description || "No description";
+    modalBody.appendChild(description);
+
     const mediaHtml = data.media && data.media.length > 0
       ? data.media.map(url => {
           const fileExtension = url.split('.').pop().toLowerCase();
@@ -552,6 +573,11 @@ export class ICEPIGTracker {
           }
         }).join("")
       : "";
+
+    const mediaContainer = document.createElement('div');
+    mediaContainer.className = 'media-container';
+    mediaContainer.innerHTML = mediaHtml;
+    modalBody.appendChild(mediaContainer);
 
     // Check session storage for upvote/report status
     const upvoteKey = `upvoted_regular_${data.id}`;
@@ -948,7 +974,12 @@ export class ICEPIGTracker {
     if (!confirm(this.t("confirm_delete"))) return;
 
     try {
-      const response = await fetch(`/api/markers/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/markers/${id}`, { 
+        method: "DELETE",
+        headers: {
+          'X-Magic-Code': this.magicCode
+        }
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete marker");
@@ -1182,12 +1213,35 @@ ICEPIGTracker.prototype.updateUIText = function () {
 };
 
 ICEPIGTracker.prototype.updateStats = function () {
-  // This function is no longer in use since the stats bar was removed.
-  // We'll keep it here in case we want to add it back later.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  this.stats.total = this.markers.length;
+  this.stats.ice = this.markers.filter(m => m.type === 'ICE').length;
+  this.stats.pig = this.markers.filter(m => m.type === 'PIG').length;
+  this.stats.today = this.markers.filter(m => new Date(m.timestamp) >= today).length;
+
+  document.getElementById('total-reports').textContent = this.stats.total;
+  document.getElementById('reports-today').textContent = this.stats.today;
+  document.getElementById('ice-reports').textContent = this.stats.ice;
+  document.getElementById('pig-reports').textContent = this.stats.pig;
+
+  this.animateStats();
 };
 
 ICEPIGTracker.prototype.animateStats = function () {
-  // This function is no longer in use since the stats bar was removed.
+  gsap.from("#stats-container .stat-value", {
+    textContent: 0,
+    duration: 1,
+    ease: "power1.inOut",
+    snap: { textContent: 1 },
+    stagger: 0.1,
+  });
+};
+
+ICEPIGTracker.prototype.animateEntrance = function () {
+  gsap.from("#header", { y: -100, opacity: 0, duration: 0.7, ease: "power2.out" });
+  gsap.from("#map-container", { scale: 1.05, opacity: 0, duration: 1, ease: "power2.out", delay: 0.3 });
 };
 
 ICEPIGTracker.prototype.updateCharts = function () {

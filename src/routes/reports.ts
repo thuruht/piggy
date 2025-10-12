@@ -6,7 +6,7 @@ import { rateLimitMiddleware } from "../middleware/rateLimit";
 const reports = new Hono<{ Bindings: Env }>();
 
 // POST /api/markers/:id/report
-reports.post("/:id", async (c) => {
+reports.post("/:id/report", async (c) => {
   const rateLimitResult = await rateLimitMiddleware(c, "reports");
   if (rateLimitResult) return rateLimitResult;
 

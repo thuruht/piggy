@@ -56,3 +56,16 @@ export function validateMarkerInput(data: any): {
 
   return { valid: errors.length === 0, errors };
 }
+
+export function sanitizeFilename(filename: string): string {
+  // Remove directory traversal characters and sequences
+  const sanitized = filename.replace(/(\.\.\/|~|\/|\\)/g, '');
+
+  // Whitelist safe characters (alphanumeric, dots, underscores, hyphens)
+  // and remove any others.
+  const safeChars = sanitized.replace(/[^a-zA-Z0-9._-]/g, '');
+
+  // Limit the length to prevent excessively long filenames
+  const maxLength = 255;
+  return safeChars.substring(0, maxLength);
+}

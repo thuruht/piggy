@@ -13,13 +13,15 @@ export const CONFIG = {
   RATE_LIMITS: {
     markers: 5,      // 5 markers per hour
     comments: 20,    // 20 comments per hour
-    reports: 10      // 10 reports per hour
+    reports: 10,     // 10 reports per hour
+    upvotes: 20      // 20 upvotes per hour
   },
   CACHE_TTL: 60,     // 60 seconds for KV cache
   REFRESH_INTERVAL: 60000, // 60 seconds for client refresh
   MAX_TITLE_LENGTH: 200,
   MAX_DESCRIPTION_LENGTH: 1000,
   MAX_COMMENT_LENGTH: 500,
+  MAX_AUTHOR_LENGTH: 50,
   DO_URLS: {
     WEBSOCKET: "http://tracker/websocket",
     BROADCAST: "http://tracker/broadcast",

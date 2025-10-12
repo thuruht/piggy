@@ -21,6 +21,7 @@ export class LivestockReport implements DurableObject {
 
       server.accept();
       this.sessions.add(server);
+      this.broadcast({ type: 'active_users', count: this.sessions.size });
 
       server.addEventListener('close', () => {
         this.sessions.delete(server);
@@ -33,10 +34,16 @@ export class LivestockReport implements DurableObject {
       });
 
       server.addEventListener('message', async (event) => {
-        const data = JSON.parse(event.data as string);
-        if (data.type === 'user_location') {
-          // Here you could aggregate user locations, for now just broadcast active users
-          this.broadcast({ type: 'active_users', count: this.sessions.size });
+        try {
+          const data = JSON.parse(event.data as string);
+          if (data.type === 'user_location') {
+            // Here you could aggregate user locations, for now just broadcast active users
+            this.broadcast({ type: 'active_users', count: this.sessions.size });
+          }
+        } catch (error) {
+          console.error('Invalid WebSocket message:', error);
+          // Optionally send an error message back to the client
+          // server.send(JSON.stringify({ error: 'Invalid message format' }));
         }
       });
 

@@ -1,15 +1,15 @@
 # Security Audit Checklist
 
-- [ ] All user input is sanitized (HTML escaping)
-- [ ] Rate limiting is enabled on all POST endpoints
+- [x] All user input is sanitized (HTML escaping)
+- [x] Rate limiting is enabled on all POST endpoints
 - [ ] CORS headers are properly configured
 - [ ] CSP headers are set
-- [ ] HTTPS is enforced
+- [x] HTTPS is enforced
 - [ ] File uploads are validated (MIME type, size, content)
-- [ ] Database queries use parameterized statements
-- [ ] Secrets are in environment variables, not code
-- [ ] Error messages don't leak sensitive info
-- [ ] Session tokens (magic codes) are sufficiently random
-- [ ] Report threshold prevents abuse
-- [ ] Media URLs are served from separate domain
-- [ ] No PII is logged
+- [x] Database queries use parameterized statements
+- [x] Secrets are in environment variables, not code
+- [x] Error messages don't leak sensitive info
+- [x] Session tokens (magic codes) are sufficiently random
+- [x] Report threshold prevents abuse
+- [x] Media URLs are served from separate domain
+- [x] No PII is logged
