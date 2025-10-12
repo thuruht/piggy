@@ -35,7 +35,7 @@ export class ICEPIGTracker {
       this.setupMap();
       this.setupLegend();
       await this.loadMarkers();
-      // this.animateEntrance(); // This function is not defined
+      this.animateEntrance();
       this.startAutoRefresh();
       this.setupRefreshButton();
       this.connectWebSocket();
@@ -514,6 +514,27 @@ export class ICEPIGTracker {
 
   showMarkerDetails(feature) {
     const data = feature.getProperties();
+    const modalBody = document.getElementById("modal-body");
+    modalBody.innerHTML = ''; // Clear previous content
+
+    const title = document.createElement('h3');
+    title.textContent = data.title;
+    modalBody.appendChild(title);
+
+    const meta = document.createElement('div');
+    meta.className = 'modal-meta';
+    const type = document.createElement('span');
+    type.innerHTML = `<strong>Type:</strong> ${data.type}`;
+    meta.appendChild(type);
+    const posted = document.createElement('span');
+    posted.innerHTML = `<strong>Posted:</strong> ${new Date(data.timestamp).toLocaleString()}`;
+    meta.appendChild(posted);
+    modalBody.appendChild(meta);
+
+    const description = document.createElement('p');
+    description.textContent = data.description || "No description";
+    modalBody.appendChild(description);
+
     const mediaHtml = data.media && data.media.length > 0
       ? data.media.map(url => {
           const fileExtension = url.split('.').pop().toLowerCase();
@@ -529,57 +550,70 @@ export class ICEPIGTracker {
         }).join("")
       : "";
 
+    const mediaContainer = document.createElement('div');
+    mediaContainer.className = 'media-container';
+    mediaContainer.innerHTML = mediaHtml;
+    modalBody.appendChild(mediaContainer);
+
     // Check session storage for upvote/report status
     const upvoteKey = `upvoted_${data.id}`;
     const reportKey = `reported_${data.id}`;
     const alreadyUpvoted = sessionStorage.getItem(upvoteKey);
     const alreadyReported = sessionStorage.getItem(reportKey);
 
-    document.getElementById("modal-body").innerHTML = `
-  <h3>${data.title}</h3>
-  <div class="modal-meta">
-    <span><strong>Type:</strong> ${data.type}</span>
-    <span><strong>Posted:</strong> ${new Date(
-      data.timestamp
-    ).toLocaleString()}</span>
-  </div>
-  <p>${data.description || "No description"}</p>
-  <div class="media-container">${mediaHtml}</div>
-  
-  <div class="modal-actions">
-    <button id="report-btn" onclick="tracker.reportMarker('${data.id}')" ${
-      alreadyReported ? "disabled" : ""
-    }>
-      ${alreadyReported ? "✓ Reported" : "⚠ Report"}
-    </button>
-    <button id="upvote-btn" onclick="tracker.upvoteMarker('${data.id}')" ${
-      alreadyUpvoted ? "disabled" : ""
-    }>
-      👍 ${
-        alreadyUpvoted ? this.t("upvoted") : this.t("upvote")
-      } (<span id="upvote-count">${data.upvotes || 0}</span>)
-    </button>
-  </div>
+    const actions = document.createElement('div');
+    actions.className = 'modal-actions';
+    const reportBtn = document.createElement('button');
+    reportBtn.id = 'report-btn';
+    reportBtn.onclick = () => this.reportMarker(data.id);
+    if (alreadyReported) {
+      reportBtn.disabled = true;
+    }
+    reportBtn.innerHTML = alreadyReported ? "✓ Reported" : "⚠ Report";
+    actions.appendChild(reportBtn);
 
-  <div id="comments"><h4>${this.t("comments")}</h4></div>
-  <textarea id="newComment" placeholder="${this.t("add_comment")}"></textarea>
-  <input id="commentAuthor" placeholder="${this.t("author")}">
-  <button onclick="tracker.addComment('${data.id}')">${this.t(
-      "add_comment"
-    )}</button>
-  
-  ${
-    this.canEdit(data)
-      ? `
-    <div class="admin-actions">
-      <button onclick="tracker.deleteMarker('${data.id}')">${this.t(
-          "delete"
-        )}</button>
-    </div>
-  `
-      : ""
-  }
-`;
+    const upvoteBtn = document.createElement('button');
+    upvoteBtn.id = 'upvote-btn';
+    upvoteBtn.onclick = () => this.upvoteMarker(data.id);
+    if (alreadyUpvoted) {
+      upvoteBtn.disabled = true;
+    }
+    upvoteBtn.innerHTML = `👍 ${alreadyUpvoted ? this.t("upvoted") : this.t("upvote")} (<span id="upvote-count">${data.upvotes || 0}</span>)`;
+    actions.appendChild(upvoteBtn);
+    modalBody.appendChild(actions);
+
+    const commentsDiv = document.createElement('div');
+    commentsDiv.id = 'comments';
+    const commentsHeader = document.createElement('h4');
+    commentsHeader.textContent = this.t("comments");
+    commentsDiv.appendChild(commentsHeader);
+    modalBody.appendChild(commentsDiv);
+
+    const newComment = document.createElement('textarea');
+    newComment.id = 'newComment';
+    newComment.placeholder = this.t("add_comment");
+    modalBody.appendChild(newComment);
+
+    const commentAuthor = document.createElement('input');
+    commentAuthor.id = 'commentAuthor';
+    commentAuthor.placeholder = this.t("author");
+    modalBody.appendChild(commentAuthor);
+
+    const addCommentBtn = document.createElement('button');
+    addCommentBtn.textContent = this.t("add_comment");
+    addCommentBtn.onclick = () => this.addComment(data.id);
+    modalBody.appendChild(addCommentBtn);
+
+    if (this.canEdit(data)) {
+      const adminActions = document.createElement('div');
+      adminActions.className = 'admin-actions';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = this.t("delete");
+      deleteBtn.onclick = () => this.deleteMarker(data.id);
+      adminActions.appendChild(deleteBtn);
+      modalBody.appendChild(adminActions);
+    }
+
     this.loadComments(data.id);
     document.getElementById("modal").style.display = "block";
   }
@@ -905,7 +939,12 @@ export class ICEPIGTracker {
     if (!confirm(this.t("confirm_delete"))) return;
 
     try {
-      const response = await fetch(`/api/markers/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/markers/${id}`, { 
+        method: "DELETE",
+        headers: {
+          'X-Magic-Code': this.magicCode
+        }
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete marker");
@@ -1071,12 +1110,35 @@ ICEPIGTracker.prototype.updateUIText = function () {
 };
 
 ICEPIGTracker.prototype.updateStats = function () {
-  // This function is no longer in use since the stats bar was removed.
-  // We'll keep it here in case we want to add it back later.
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  this.stats.total = this.markers.length;
+  this.stats.ice = this.markers.filter(m => m.type === 'ICE').length;
+  this.stats.pig = this.markers.filter(m => m.type === 'PIG').length;
+  this.stats.today = this.markers.filter(m => new Date(m.timestamp) >= today).length;
+
+  document.getElementById('total-reports').textContent = this.stats.total;
+  document.getElementById('reports-today').textContent = this.stats.today;
+  document.getElementById('ice-reports').textContent = this.stats.ice;
+  document.getElementById('pig-reports').textContent = this.stats.pig;
+
+  this.animateStats();
 };
 
 ICEPIGTracker.prototype.animateStats = function () {
-  // This function is no longer in use since the stats bar was removed.
+  gsap.from("#stats-container .stat-value", {
+    textContent: 0,
+    duration: 1,
+    ease: "power1.inOut",
+    snap: { textContent: 1 },
+    stagger: 0.1,
+  });
+};
+
+ICEPIGTracker.prototype.animateEntrance = function () {
+  gsap.from("#header", { y: -100, opacity: 0, duration: 0.7, ease: "power2.out" });
+  gsap.from("#map-container", { scale: 1.05, opacity: 0, duration: 1, ease: "power2.out", delay: 0.3 });
 };
 
 ICEPIGTracker.prototype.updateCharts = function () {

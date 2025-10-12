@@ -4,9 +4,9 @@ import { rateLimitMiddleware } from "../middleware/rateLimit";
 
 const upvotes = new Hono<{ Bindings: Env }>();
 
-// POST /api/markers/:id/upvote
+// POST /api/upvotes/:id
 upvotes.post("/:id", async (c) => {
-  const rateLimitResult = await rateLimitMiddleware(c, "reports"); // Using same rate limit as reports
+  const rateLimitResult = await rateLimitMiddleware(c, "upvotes"); // Using correct rate limit
   if (rateLimitResult) return rateLimitResult;
 
   try {
