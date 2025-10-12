@@ -10,20 +10,40 @@ const markers = new Hono<{ Bindings: Env }>();
 
 // GET /api/markers - Fetch all markers
 markers.get("/", async (c) => {
+  const { filter } = c.req.query();
+  const showArchived = filter === "all";
+
   try {
-    const result = await c.env.LIVESTOCK_DB.prepare(
-      `
-      SELECT m.*,
+    let query = `
+      SELECT
+        m.id,
+        m.type,
+        m.title,
+        m.description,
+        m.latitude,
+        m.longitude,
+        m.timestamp,
+        m.is_archived,
+        m.expires_at,
+        (SELECT type FROM upvotes WHERE markerId = m.id ORDER BY timestamp DESC LIMIT 1) as upvote_type,
         GROUP_CONCAT(md.url) as mediaUrls,
         GROUP_CONCAT(md.type) as mediaTypes
       FROM markers m
       LEFT JOIN media md ON m.id = md.markerId
       WHERE m.reportCount < ? AND m.hidden = 0
+    `;
+
+    if (!showArchived) {
+      query += ` AND m.isArchived = 0`;
+    }
+
+    query += `
       GROUP BY m.id
       ORDER BY m.timestamp DESC
       LIMIT 200
-    `
-    )
+    `;
+
+    const result = await c.env.LIVESTOCK_DB.prepare(query)
       .bind(CONFIG.REPORT_THRESHOLD)
       .all<MarkerFromDB>();
 
@@ -36,7 +56,7 @@ markers.get("/", async (c) => {
       timestamp: row.timestamp,
       magicCode: row.magicCode,
       media: row.mediaUrls ? row.mediaUrls.split(",") : [],
-      upvotes: row.upvotes || 0,
+      upvoteType: row.upvote_type,
     }));
 
     return c.json(markers);
@@ -75,11 +95,14 @@ markers.post("/", async (c) => {
       media: body.media || [],
     };
 
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
     // Insert into D1
     await c.env.LIVESTOCK_DB.prepare(
       `
-      INSERT INTO markers (id, title, type, description, latitude, longitude, timestamp, magicCode)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO markers (id, title, type, description, latitude, longitude, timestamp, magicCode, expiresAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
     )
       .bind(
@@ -90,7 +113,8 @@ markers.post("/", async (c) => {
         marker.coords[0],
         marker.coords[1],
         marker.timestamp,
-        marker.magicCode
+        marker.magicCode,
+        expiresAt.toISOString()
       )
       .run();
 
