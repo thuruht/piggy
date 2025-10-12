@@ -74,9 +74,10 @@ const scheduledHandler = async (event, env, ctx) => {
   }
 };
 
-export default {
-  fetch: app.fetch,
-  scheduled: scheduledHandler,
-};
+app.get("*", (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
+
+export default app;
 
 export { LivestockReport } from "./durable_objects/LivestockReport";

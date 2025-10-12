@@ -9,6 +9,9 @@ bucket = "./public"
 [triggers]
 crons = ["0 * * * *"]
 
+[triggers]
+crons = ["0 * * * *"]
+
 [vars]
 ENVIRONMENT = "production"
 PRIVACY_MODE = "strict"

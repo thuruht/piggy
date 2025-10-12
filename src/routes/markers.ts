@@ -34,11 +34,11 @@ markers.get("/", async (c) => {
         GROUP_CONCAT(md.type) as mediaTypes
       FROM markers m
       LEFT JOIN media md ON m.id = md.markerId
-      WHERE m.reportCount < ? AND m.hidden = 0
+      WHERE m.report_count < ? AND m.hidden = 0
     `;
 
     if (!showArchived) {
-      query += ` AND m.isArchived = 0`;
+      query += ` AND m.is_archived = 0`;
     }
 
     query += `
@@ -58,7 +58,7 @@ markers.get("/", async (c) => {
       description: row.description,
       coords: [parseFloat(row.latitude), parseFloat(row.longitude)],
       timestamp: row.timestamp,
-      magicCode: row.magicCode,
+      magicCode: row.magic_code,
       media: row.mediaUrls ? row.mediaUrls.split(",") : [],
       upvoteType: row.upvote_type,
     }));
@@ -105,7 +105,7 @@ markers.post("/", async (c) => {
     // Insert into D1
     await c.env.LIVESTOCK_DB.prepare(
       `
-      INSERT INTO markers (id, title, type, description, latitude, longitude, timestamp, magicCode, expiresAt)
+      INSERT INTO markers (id, title, type, description, latitude, longitude, timestamp, magic_code, expires_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
     )
@@ -162,7 +162,7 @@ markers.delete("/:id", async (c) => {
     // Verify ownership via magic code
     const marker = await c.env.LIVESTOCK_DB.prepare(
       `
-      SELECT magicCode FROM markers WHERE id = ?
+      SELECT magic_code FROM markers WHERE id = ?
     `
     )
       .bind(id)
@@ -172,7 +172,7 @@ markers.delete("/:id", async (c) => {
       return c.json({ error: "Marker not found" }, 404);
     }
 
-    if (marker.magicCode !== magicCode) {
+    if (marker.magic_code !== magicCode) {
       return c.json({ error: "Unauthorized" }, 403);
     }
 

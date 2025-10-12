@@ -12,8 +12,8 @@ reports.post("/:id/report", async (c) => {
 
   try {
     const id = c.req.param("id");
-    const ip = c.req.header("CF-Connecting-IP") || "unknown";
-    const sessionKey = `reported:${id}:${ip}`;
+    const { magicCode } = await c.req.json();
+    const sessionKey = `reported:${id}:${magicCode}`;
 
     // Check if already reported
     const alreadyReported = await c.env.PIGMAP_CONFIG.get(sessionKey);

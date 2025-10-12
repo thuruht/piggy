@@ -649,7 +649,7 @@ export class ICEPIGTracker {
       const response = await fetch(`/api/upvotes/${markerId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ type, magicCode: this.magicCode }),
       });
       if (!response.ok) {
         const err = await response.json();
@@ -691,6 +691,8 @@ export class ICEPIGTracker {
     try {
       const response = await fetch(`/api/markers/${markerId}/report`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ magicCode: this.magicCode }),
       });
 
       if (!response.ok) {
@@ -1049,7 +1051,7 @@ export class ICEPIGTracker {
       return;
     }
 
-    const searchButton = document.querySelector(".search-add-container #addBtn");
+    const searchButton = document.getElementById("searchBtn");
     if (searchButton) {
       searchButton.disabled = true;
       searchButton.textContent = "...";
@@ -1070,7 +1072,7 @@ export class ICEPIGTracker {
     } finally {
       if (searchButton) {
         searchButton.disabled = false;
-        searchButton.textContent = "Add";
+        searchButton.textContent = "Search";
       }
     }
   }

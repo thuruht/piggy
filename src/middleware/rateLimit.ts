@@ -11,8 +11,22 @@ export async function rateLimitMiddleware(
   c: Context<{ Bindings: Env }>,
   endpoint: keyof typeof CONFIG.RATE_LIMITS
 ) {
-  const ip = c.req.header('CF-Connecting-IP') || 'unknown';
-  const key = `ratelimit:${endpoint}:${ip}`;
+  const clonedReq = c.req.raw.clone();
+  let identifier: string | undefined;
+  try {
+    const body = await clonedReq.json();
+    identifier = body.magicCode;
+  } catch (e) {
+    // ignore if body is not present or not json
+  }
+
+  // If no magic code, we can't effectively rate limit without using IP.
+  // This is a design decision to enforce privacy.
+  if (!identifier) {
+    identifier = "anonymous"; // This will apply the rate limit globally for all anonymous requests.
+  }
+
+  const key = `ratelimit:${endpoint}:${identifier}`;
 
   const stored = await c.env.PIGMAP_CONFIG.get<RateLimitEntry>(key, 'json');
   const now = Date.now();
