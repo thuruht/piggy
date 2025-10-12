@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { Env } from "../types";
-import { rateLimitMiddleware } from "../middleware/rateLimit";
+import { nanoid } from "nanoid";
 
 const upvotes = new Hono<{ Bindings: Env }>();
 
@@ -10,30 +10,41 @@ upvotes.post("/:id", async (c) => {
   if (rateLimitResult) return rateLimitResult;
 
   try {
-    const id = c.req.param("id");
-    const ip = c.req.header("CF-Connecting-IP") || "unknown";
-    const sessionKey = `upvoted:${id}:${ip}`;
+    // Add to upvotes table
+    await c.env.LIVESTOCK_DB.prepare(
+      "INSERT INTO upvotes (id, markerId, timestamp, type) VALUES (?, ?, ?, ?)"
+    )
+      .bind(nanoid(), markerId, new Date().toISOString(), type)
+      .run();
 
-    // Check if already upvoted
-    const alreadyUpvoted = await c.env.PIGMAP_CONFIG.get(sessionKey);
-    if (alreadyUpvoted) {
-      return c.json({ error: "Already upvoted" }, 400);
+    // If ongoing, extend expiration
+    if (type === "ongoing") {
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      await c.env.LIVESTOCK_DB.prepare(
+        "UPDATE markers SET expiresAt = ? WHERE id = ?"
+      )
+        .bind(expiresAt, markerId)
+        .run();
     }
 
-    // Increment upvote count in D1
-    const result = await c.env.LIVESTOCK_DB.prepare(
-      `UPDATE markers SET upvotes = upvotes + 1 WHERE id = ? RETURNING upvotes`
+    await c.env.PIGMAP_CONFIG.put(upvoteKey, "true", { expirationTtl: 86400 }); // 24 hours
+
+    // Get total upvotes
+    const { results: upvoteResults } = await c.env.LIVESTOCK_DB.prepare(
+      "SELECT COUNT(*) as upvotes FROM upvotes WHERE markerId = ? AND type = 'regular'"
     )
-      .bind(id)
-      .first<{ upvotes: number }>();
+      .bind(markerId)
+      .all();
 
-    // Mark as upvoted for this session (24 hours)
-    await c.env.PIGMAP_CONFIG.put(sessionKey, "true", { expirationTtl: 86400 });
+    const upvotes = upvoteResults[0].upvotes;
 
-    return c.json({ success: true, upvotes: result?.upvotes ?? 0 });
+    return c.json({
+      message: "Upvoted successfully",
+      upvotes,
+    });
   } catch (error) {
     console.error("Upvote error:", error);
-    return c.json({ error: "Failed to upvote marker" }, 500);
+    return c.json({ error: "Failed to upvote" }, 500);
   }
 });
 

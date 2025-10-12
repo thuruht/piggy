@@ -4,7 +4,10 @@ compatibility_date = "2024-06-01"
 compatibility_flags = ["nodejs_compat"]
 
 [site]
-bucket = "./dist"
+bucket = "./public"
+
+[triggers]
+crons = ["0 * * * *"]
 
 [vars]
 ENVIRONMENT = "production"
