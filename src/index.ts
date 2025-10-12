@@ -45,10 +45,6 @@ app.get("/ws", async (c) => {
   return durableStub.fetch(CONFIG.DO_URLS.WEBSOCKET, c.req.raw);
 });
 
-// Serve static assets from the assets service.
-app.get("*", (c) => {
-  return c.env.ASSETS.fetch(c.req.raw);
-});
 
 export default app;
 
