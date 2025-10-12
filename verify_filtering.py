@@ -15,4 +15,4 @@ def test_filtering(page: Page):
     expect(page.locator("#map")).to_be_visible()
 
     # 4. Screenshot: Capture the final result for visual verification.
-    page.screenshot(path="jules-scratch/verification/filtering.png")
+    page.screenshot(path="filtering.png")

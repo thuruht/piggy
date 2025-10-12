@@ -665,6 +665,8 @@ export class ICEPIGTracker {
     try {
       const response = await fetch(`/api/markers/${markerId}/report`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ magicCode: this.magicCode }),
       });
 
       if (!response.ok) {
@@ -1018,7 +1020,7 @@ export class ICEPIGTracker {
       return;
     }
 
-    const searchButton = document.getElementById("addBtn");
+    const searchButton = document.getElementById("searchBtn");
     if (searchButton) {
       searchButton.disabled = true;
       searchButton.textContent = "...";
@@ -1039,7 +1041,7 @@ export class ICEPIGTracker {
     } finally {
       if (searchButton) {
         searchButton.disabled = false;
-        searchButton.textContent = "Add";
+        searchButton.textContent = "Search";
       }
     }
   }

@@ -50,23 +50,10 @@ app.get("*", (c) => {
   return c.env.ASSETS.fetch(c.req.raw);
 });
 
-const scheduledHandler = async (event, env, ctx) => {
-  try {
-    const { results } = await env.LIVESTOCK_DB.prepare(
-      `UPDATE markers SET isArchived = 1 WHERE expiresAt < ? AND isArchived = 0`
-    )
-      .bind(new Date().toISOString())
-      .run();
+app.get("*", (c) => {
+  return c.env.ASSETS.fetch(c.req.raw);
+});
 
-    console.log(`Archived ${results.changes} markers.`);
-  } catch (error) {
-    console.error("Failed to archive markers:", error);
-  }
-};
-
-export default {
-  fetch: app.fetch,
-  scheduled: scheduledHandler,
-};
+export default app;
 
 export { LivestockReport } from "./durable_objects/LivestockReport";
