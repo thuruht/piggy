@@ -60,7 +60,7 @@ describe('Comments API', () => {
     });
 
     const res = await app.fetch(req, env);
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(201);
     const data = await res.json();
     expect(data.success).toBe(true);
   });
