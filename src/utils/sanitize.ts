@@ -30,8 +30,8 @@ export function validateMarkerInput(data: any): {
     errors.push("Type must be ICE or PIG");
   }
 
-  if (!data.description || typeof data.description !== "string") {
-    errors.push("Description is required");
+  if (typeof data.description !== "string") {
+    errors.push("Description must be a string");
   } else if (data.description.length > CONFIG.MAX_DESCRIPTION_LENGTH) {
     errors.push(
       `Description must be less than ${CONFIG.MAX_DESCRIPTION_LENGTH} characters`

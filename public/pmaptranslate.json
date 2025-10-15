@@ -1,6 +1,7 @@
 {
   "en": {
     "add_new_marker": "Add New Marker",
+    "add_new_marker_short": "Add",
     "save": "Save",
     "cancel": "Cancel",
     "edit": "Edit",
@@ -30,10 +31,16 @@
     "data_insights": "Data Insights",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "All",
+    "filter_active": "Active",
+    "filter_archived": "Archived",
+    "filter_ongoing": "Ongoing",
+    "filter_new": "New"
   },
   "es": {
     "add_new_marker": "Agregar nuevo marcador",
+    "add_new_marker_short": "Agregar",
     "save": "Guardar",
     "cancel": "Cancelar",
     "edit": "Editar",
@@ -63,10 +70,16 @@
     "data_insights": "Información de datos",
     "confirm_report": "¿Estás seguro de que quieres denunciar esta publicación? Se ocultará después de 5 denuncias.",
     "upvote": "Voto a favor",
-    "upvoted": "Votado a favor"
+    "upvoted": "Votado a favor",
+    "filter_all": "Todos",
+    "filter_active": "Activo",
+    "filter_archived": "Archivado",
+    "filter_ongoing": "En curso",
+    "filter_new": "Nuevo"
   },
   "fr": {
     "add_new_marker": "Ajouter un nouveau marqueur",
+    "add_new_marker_short": "Ajouter",
     "save": "Sauvegarder",
     "cancel": "Annuler",
     "edit": "Éditer",
@@ -96,10 +109,16 @@
     "data_insights": "Aperçu des données",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Tous",
+    "filter_active": "Actif",
+    "filter_archived": "Archivé",
+    "filter_ongoing": "En cours",
+    "filter_new": "Nouveau"
   },
   "ar": {
     "add_new_marker": "إضافة علامة جديدة",
+    "add_new_marker_short": "إضافة",
     "save": "حفظ",
     "cancel": "إلغاء",
     "edit": "تعديل",
@@ -129,10 +148,16 @@
     "data_insights": "رؤى البيانات",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "الكل",
+    "filter_active": "نشيط",
+    "filter_archived": "مؤرشف",
+    "filter_ongoing": "جاري التنفيذ",
+    "filter_new": "جديد"
   },
   "zh": {
     "add_new_marker": "添加新标记",
+    "add_new_marker_short": "添加",
     "save": "保存",
     "cancel": "取消",
     "edit": "编辑",
@@ -162,10 +187,16 @@
     "data_insights": "数据洞察",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "全部",
+    "filter_active": "活性",
+    "filter_archived": "已归档",
+    "filter_ongoing": "进行中",
+    "filter_new": "新"
   },
   "am": {
     "add_new_marker": "አዲስ ምልክት ማድረጊያ ያክሉ",
+    "add_new_marker_short": "አክል",
     "save": "አስቀምጥ",
     "cancel": "ሰርዝ",
     "edit": "አርትዕ",
@@ -195,10 +226,16 @@
     "data_insights": "የውሂብ ማግኘት",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "ሁሉም",
+    "filter_active": "ንቁ",
+    "filter_archived": "ארכיון",
+    "filter_ongoing": "በሂደት ላይ",
+    "filter_new": "አዲስ"
   },
   "ht": {
     "add_new_marker": "Ajoute Nouvo Makè",
+    "add_new_marker_short": "Ajoute",
     "save": "Sere",
     "cancel": "Anile",
     "edit": "Edite",
@@ -228,10 +265,16 @@
     "data_insights": "Enfòmasyon sou done",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Tout",
+    "filter_active": "Aktif",
+    "filter_archived": "Achiv",
+    "filter_ongoing": "Kontinyèl",
+    "filter_new": "Nouvo"
   },
   "kar": {
     "add_new_marker": "တၢ်ပနီၣ်တခါထီၣ်",
+    "add_new_marker_short": "ထည့်",
     "save": "ဘၣ်",
     "cancel": "တဘၣ်",
     "edit": "မၤ",
@@ -261,10 +304,16 @@
     "data_insights": "ဒေတာ နားလည်မှု",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "အားလုံး",
+    "filter_active": "တက်ကြွ",
+    "filter_archived": "မှတ်တမ်းတင်",
+    "filter_ongoing": "ဆက်လက်",
+    "filter_new": "အသစ်"
   },
   "ku": {
     "add_new_marker": "Nîşankerek Nû lê zêde bike",
+    "add_new_marker_short": "Lê zêde bike",
     "save": "Tomar bike",
     "cancel": "Betal bike",
     "edit": "Weşandin",
@@ -294,10 +343,16 @@
     "data_insights": "Têgihiştina daneyan",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Hemû",
+    "filter_active": "Çalak",
+    "filter_archived": "Arşîvkirî",
+    "filter_ongoing": "Berdewam",
+    "filter_new": "Nşh"
   },
   "my": {
     "add_new_marker": "အမှတ်အသားအသစ်ထည့်ပါ",
+    "add_new_marker_short": "ထည့်",
     "save": "သိမ်းဆည်း",
     "cancel": "မလုပ်တော့",
     "edit": "ပြုပြင်ရန်",
@@ -327,10 +382,16 @@
     "data_insights": "ဒေတာ အသိအမြင်",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "အားလုံး",
+    "filter_active": "တက်ကြွ",
+    "filter_archived": "မှတ်တမ်းတင်",
+    "filter_ongoing": "ဆက်လက်",
+    "filter_new": "အသစ်"
   },
   "ne": {
     "add_new_marker": "नयाँ मार्कर थप्नुहोस्",
+    "add_new_marker_short": "थप्नुहोस्",
     "save": "सेभ गर्नुहोस्",
     "cancel": "रद्द गर्नुहोस्",
     "edit": "सम्पादन गर्नुहोस्",
@@ -360,10 +421,16 @@
     "data_insights": "डाटा अंतर्दृष्टि",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "सबै",
+    "filter_active": "सक्रिय",
+    "filter_archived": "अभिलेख राखियो",
+    "filter_ongoing": "चलिरहेको",
+    "filter_new": "नयाँ"
   },
   "pt": {
     "add_new_marker": "Adicionar novo marcador",
+    "add_new_marker_short": "Adicionar",
     "save": "Salvar",
     "cancel": "Cancelar",
     "edit": "Editar",
@@ -393,10 +460,16 @@
     "data_insights": "Insights de dados",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Todos",
+    "filter_active": "Ativo",
+    "filter_archived": "Arquivado",
+    "filter_ongoing": "Em andamento",
+    "filter_new": "Novo"
   },
   "so": {
     "add_new_marker": "Ku dar Calaamad Cusub",
+    "add_new_marker_short": "Ku dar",
     "save": "Kaydi",
     "cancel": "Jooji",
     "edit": "Tafatir",
@@ -426,10 +499,16 @@
     "data_insights": "Aragti xogta",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Dhammaan",
+    "filter_active": "Firfircoon",
+    "filter_archived": "Kaydsan",
+    "filter_ongoing": "Soconaya",
+    "filter_new": "Cusub"
   },
   "sw": {
     "add_new_marker": "Ongeza alama mpya",
+    "add_new_marker_short": "Ongeza",
     "save": "Hifadhi",
     "cancel": "Ghairi",
     "edit": "Hariri",
@@ -459,10 +538,16 @@
     "data_insights": "Maarifa ya takwimu",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Wote",
+    "filter_active": "Hai",
+    "filter_archived": "Imehifadhiwa",
+    "filter_ongoing": "Inaendelea",
+    "filter_new": "Mpya"
   },
   "ur": {
     "add_new_marker": "نیا مارکر شامل کریں",
+    "add_new_marker_short": "شامل کریں",
     "save": "محفوظ کریں",
     "cancel": "منسوخ کریں",
     "edit": "ترمیم",
@@ -492,10 +577,16 @@
     "data_insights": "ڈیٹا کی بصیرت",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "تمام",
+    "filter_active": "فعال",
+    "filter_archived": "محفوظ شدہ",
+    "filter_ongoing": "جاری ہے",
+    "filter_new": "نیا"
   },
   "vi": {
     "add_new_marker": "Thêm điểm đánh dấu mới",
+    "add_new_marker_short": "Thêm",
     "save": "Lưu",
     "cancel": "Hủy",
     "edit": "Chỉnh sửa",
@@ -525,6 +616,11 @@
     "data_insights": "Thông tin chi tiết dữ liệu",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "filter_all": "Tất cả",
+    "filter_active": "Hoạt động",
+    "filter_archived": "Lưu trữ",
+    "filter_ongoing": "Đang berlangsung",
+    "filter_new": "Mới"
   }
 }

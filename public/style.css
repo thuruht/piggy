@@ -51,7 +51,6 @@ body {
 .search-add-container {
   display: flex;
   flex: 1;
-  max-width: 400px;
 }
 
 .filter-controls {
@@ -81,13 +80,13 @@ body {
 }
 
 #searchInput {
-  border-radius: 20px 0 0 20px;
-  border-right: none;
+  border-radius: 20px;
 }
 
 #addBtn {
   border-radius: 0 20px 20px 0;
   padding: 10px 20px;
+  margin-left: 10px;
 }
 
 .secondary-controls {
@@ -467,7 +466,7 @@ textarea {
   background-color: white;
   border: 1px solid #ccc;
   border-top: none;
-  z-index: 1000;
+  z-index: 2000;
   max-height: 200px;
   overflow-y: auto;
 }

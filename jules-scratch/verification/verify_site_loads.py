@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright, expect
 def run(playwright):
     browser = playwright.chromium.launch()
     page = browser.new_page()
-    page.goto("http://localhost:8787")
+    page.goto("https://pigmap.jojo-829.workers.dev")
 
     # Check for a key element on the page to ensure it loaded correctly
     expect(page.locator("#map")).to_be_visible()

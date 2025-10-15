@@ -20,6 +20,7 @@ export class ICEPIGTracker {
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.deferredPrompt = null;
+    this.audioContext = null;
   }
 
   generateMagicCode() {
@@ -205,6 +206,9 @@ export class ICEPIGTracker {
   }
 
   async onMapClick(evt) {
+    if (!this.audioContext) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
     if (this.addMode) {
       const coords = ol.proj.toLonLat(evt.coordinate);
       this.showAddMarkerModal(coords);
@@ -363,6 +367,7 @@ export class ICEPIGTracker {
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
+          contentLength: file.size,
         }),
       });
 
@@ -522,11 +527,17 @@ export class ICEPIGTracker {
     try {
       const response = await fetch("/api/markers");
       const markers = await response.json();
-      this.markers = markers;
+      if (!Array.isArray(markers)) {
+        console.error("Failed to load markers: response is not an array", markers);
+        this.showToast("Failed to load markers", "error");
+        this.markers = []; // Set to empty array to prevent further errors
+      } else {
+        this.markers = markers;
+      }
       this.vectorSource.clear();
       this.displayedMarkerIds.clear();
       this.updateStats();
-      markers.forEach((marker) => this.addMarkerToMap(marker));
+      this.markers.forEach((marker) => this.addMarkerToMap(marker));
       this.updateCharts();
       this.applyFilters(); // Apply initial filters
     } catch (error) {
@@ -620,7 +631,7 @@ export class ICEPIGTracker {
 
   <div id="comments"><h4>${this.t("comments")}</h4></div>
   <textarea id="newComment" placeholder="${this.t("add_comment")}"></textarea>
-  <input id="commentAuthor" placeholder="${this.t("author")}">
+  <div><input type="checkbox" id="rememberMe"> <label for="rememberMe">${this.t("remember_me")}</label></div>
   <button onclick="tracker.addComment('${data.id}')">${this.t(
       "add_comment"
     )}</button>
@@ -910,9 +921,14 @@ export class ICEPIGTracker {
   }
 
   playSound(type) {
+    if (!this.audioContext) {
+      return;
+    }
     try {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      if (this.audioContext.state === 'suspended') {
+        this.audioContext.resume();
+      }
+      const audioContext = this.audioContext;
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
