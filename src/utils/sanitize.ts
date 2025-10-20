@@ -26,8 +26,9 @@ export function validateMarkerInput(data: any): {
     );
   }
 
-  if (!data.type || !["ICE", "PIG"].includes(data.type)) {
-    errors.push("Type must be ICE or PIG");
+  const validTypes = ["ICE", "PIG", "CHECKPOINT", "RAID", "OTHER"];
+  if (!data.type || !validTypes.includes(data.type)) {
+    errors.push(`Type must be one of: ${validTypes.join(", ")}`);
   }
 
   if (typeof data.description !== "string") {
@@ -59,11 +60,11 @@ export function validateMarkerInput(data: any): {
 
 export function sanitizeFilename(filename: string): string {
   // Remove directory traversal characters and sequences
-  const sanitized = filename.replace(/(\.\.\/|~|\/|\\)/g, '');
+  const sanitized = filename.replace(/(\.\.\/|~|\/|\\)/g, "");
 
   // Whitelist safe characters (alphanumeric, dots, underscores, hyphens)
   // and remove any others.
-  const safeChars = sanitized.replace(/[^a-zA-Z0-9._-]/g, '');
+  const safeChars = sanitized.replace(/[^a-zA-Z0-9._-]/g, "");
 
   // Limit the length to prevent excessively long filenames
   const maxLength = 255;

@@ -132,7 +132,7 @@ export class ICEPIGTracker {
     let color = category.color;
     const iconUnicode = category.unicode;
     const timestamp = feature.get("timestamp");
-    const isNew = (new Date() - new Date(timestamp)) < 24 * 60 * 60 * 1000;
+    const isNew = new Date() - new Date(timestamp) < 24 * 60 * 60 * 1000;
     const isArchived = feature.get("isArchived");
 
     if (isArchived) {
@@ -148,12 +148,18 @@ export class ICEPIGTracker {
             <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="rgba(0,0,0,0.3)"/>
           </filter>
         </defs>
-        <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${color}" ${isNew && !isArchived ? 'stroke="#00ff00" stroke-width="2"' : ''} filter="url(#shadow)"/>
+        <path d="M15 0 C8.373 0 3 5.373 3 12 C3 21.375 15 42 15 42 S27 21.375 27 12 C27 5.373 21.627 0 15 0 Z" fill="${color}" ${
+      isNew && !isArchived ? 'stroke="#00ff00" stroke-width="2"' : ""
+    } filter="url(#shadow)"/>
         <style>
           .icon { font-family: "tabler-icons"; font-size: 18px; fill: white; }
         </style>
         <text x="15" y="19" class="icon" text-anchor="middle">${iconUnicode}</text>
-        ${isOngoing && !isArchived ? '<circle cx="22" cy="8" r="4" fill="orange" />' : ''}
+        ${
+          isOngoing && !isArchived
+            ? '<circle cx="22" cy="8" r="4" fill="orange" />'
+            : ""
+        }
       </svg>
     `;
 
@@ -200,14 +206,21 @@ export class ICEPIGTracker {
     });
 
     // Filter control
-    document.getElementById("statusFilter").addEventListener("change", () => this.applyFilters());
-    document.getElementById("ongoingFilter").addEventListener("change", () => this.applyFilters());
-    document.getElementById("newFilter").addEventListener("change", () => this.applyFilters());
+    document
+      .getElementById("statusFilter")
+      .addEventListener("change", () => this.applyFilters());
+    document
+      .getElementById("ongoingFilter")
+      .addEventListener("change", () => this.applyFilters());
+    document
+      .getElementById("newFilter")
+      .addEventListener("change", () => this.applyFilters());
   }
 
   async onMapClick(evt) {
     if (!this.audioContext) {
-      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.audioContext = new (window.AudioContext ||
+        window.webkitAudioContext)();
     }
     if (this.addMode) {
       const coords = ol.proj.toLonLat(evt.coordinate);
@@ -299,10 +312,10 @@ export class ICEPIGTracker {
     saveBtn.textContent = "Saving...";
     saveBtn.disabled = true;
 
-    const progressContainer = document.createElement('div');
-    progressContainer.className = 'progress-container';
-    const progressBar = document.createElement('div');
-    progressBar.className = 'progress-bar';
+    const progressContainer = document.createElement("div");
+    progressContainer.className = "progress-container";
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress-bar";
     progressContainer.appendChild(progressBar);
     saveBtn.parentElement.appendChild(progressContainer);
 
@@ -314,7 +327,7 @@ export class ICEPIGTracker {
         saveBtn.textContent = `Uploading ${files.length} file(s)...`;
 
         const uploadPromises = Array.from(files).map((file, index) =>
-          this.uploadMedia(file, marker.id).then(url => {
+          this.uploadMedia(file, marker.id).then((url) => {
             progressBar.style.width = `${((index + 1) / files.length) * 100}%`;
             return url;
           })
@@ -528,7 +541,10 @@ export class ICEPIGTracker {
       const response = await fetch("/api/markers");
       const markers = await response.json();
       if (!Array.isArray(markers)) {
-        console.error("Failed to load markers: response is not an array", markers);
+        console.error(
+          "Failed to load markers: response is not an array",
+          markers
+        );
         this.showToast("Failed to load markers", "error");
         this.markers = []; // Set to empty array to prevent further errors
       } else {
@@ -550,43 +566,67 @@ export class ICEPIGTracker {
   showMarkerDetails(feature) {
     const data = feature.getProperties();
     const modalBody = document.getElementById("modal-body");
-    modalBody.innerHTML = ''; // Clear previous content
+    modalBody.innerHTML = ""; // Clear previous content
 
-    const title = document.createElement('h3');
+    const title = document.createElement("h3");
     title.textContent = data.title;
     modalBody.appendChild(title);
 
-    const meta = document.createElement('div');
-    meta.className = 'modal-meta';
-    const type = document.createElement('span');
+    const meta = document.createElement("div");
+    meta.className = "modal-meta";
+    const type = document.createElement("span");
     type.innerHTML = `<strong>Type:</strong> ${data.type}`;
     meta.appendChild(type);
-    const posted = document.createElement('span');
-    posted.innerHTML = `<strong>Posted:</strong> ${new Date(data.timestamp).toLocaleString()}`;
+    const posted = document.createElement("span");
+    posted.innerHTML = `<strong>Posted:</strong> ${new Date(
+      data.timestamp
+    ).toLocaleString()}`;
     meta.appendChild(posted);
     modalBody.appendChild(meta);
 
-    const description = document.createElement('p');
+    const description = document.createElement("p");
     description.textContent = data.description || "No description";
     modalBody.appendChild(description);
 
-    const mediaHtml = data.media && data.media.length > 0
-      ? data.media.map(url => {
-          const fileExtension = url.split('.').pop().toLowerCase();
-          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'avif', 'bmp', 'svg'].includes(fileExtension)) {
-            return `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`;
-          } else if (['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(fileExtension)) {
-            return `<video controls class="media-preview"><source src="${url}" type="video/${fileExtension === 'mov' ? 'quicktime' : fileExtension}"></video>`;
-          } else if (['mp3', 'wav', 'ogg', 'aac', 'm4a', 'flac'].includes(fileExtension)) {
-            return `<audio controls class="media-preview"><source src="${url}" type="audio/${fileExtension}"></audio>`;
-          } else {
-            return `<a href="${url}" target="_blank">View Media</a>`;
-          }
-        }).join("")
-      : "";
+    const mediaHtml =
+      data.media && data.media.length > 0
+        ? data.media
+            .map((url) => {
+              const fileExtension = url.split(".").pop().toLowerCase();
+              if (
+                [
+                  "jpg",
+                  "jpeg",
+                  "png",
+                  "gif",
+                  "webp",
+                  "avif",
+                  "bmp",
+                  "svg",
+                ].includes(fileExtension)
+              ) {
+                return `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`;
+              } else if (
+                ["mp4", "webm", "ogg", "mov", "avi"].includes(fileExtension)
+              ) {
+                return `<video controls class="media-preview"><source src="${url}" type="video/${
+                  fileExtension === "mov" ? "quicktime" : fileExtension
+                }"></video>`;
+              } else if (
+                ["mp3", "wav", "ogg", "aac", "m4a", "flac"].includes(
+                  fileExtension
+                )
+              ) {
+                return `<audio controls class="media-preview"><source src="${url}" type="audio/${fileExtension}"></audio>`;
+              } else {
+                return `<a href="${url}" target="_blank">View Media</a>`;
+              }
+            })
+            .join("")
+        : "";
 
-    const mediaContainer = document.createElement('div');
-    mediaContainer.className = 'media-container';
+    const mediaContainer = document.createElement("div");
+    mediaContainer.className = "media-container";
     mediaContainer.innerHTML = mediaHtml;
     modalBody.appendChild(mediaContainer);
 
@@ -615,23 +655,25 @@ export class ICEPIGTracker {
     }>
       ${alreadyReported ? "✓ Reported" : "⚠ Report"}
     </button>
-    <button id="upvote-btn-regular" onclick="tracker.upvoteMarker('${data.id}', 'regular')" ${
-      alreadyUpvoted ? "disabled" : ""
-    }>
+    <button id="upvote-btn-regular" onclick="tracker.upvoteMarker('${
+      data.id
+    }', 'regular')" ${alreadyUpvoted ? "disabled" : ""}>
       👍 ${
         alreadyUpvoted ? this.t("upvoted") : this.t("upvote")
       } (<span id="upvote-count">${data.upvotes || 0}</span>)
     </button>
-    <button id="upvote-btn-ongoing" onclick="tracker.upvoteMarker('${data.id}', 'ongoing')" ${
-      alreadyOngoingUpvoted ? "disabled" : ""
-    }>
+    <button id="upvote-btn-ongoing" onclick="tracker.upvoteMarker('${
+      data.id
+    }', 'ongoing')" ${alreadyOngoingUpvoted ? "disabled" : ""}>
       👀 ${this.t("still_here")}
     </button>
   </div>
 
   <div id="comments"><h4>${this.t("comments")}</h4></div>
   <textarea id="newComment" placeholder="${this.t("add_comment")}"></textarea>
-  <div><input type="checkbox" id="rememberMe"> <label for="rememberMe">${this.t("remember_me")}</label></div>
+  <div><input type="checkbox" id="rememberMe"> <label for="rememberMe">${this.t(
+    "remember_me"
+  )}</label></div>
   <button onclick="tracker.addComment('${data.id}')">${this.t(
       "add_comment"
     )}</button>
@@ -673,7 +715,7 @@ export class ICEPIGTracker {
       upvoteBtn.disabled = true;
 
       const upvoteCountSpan = document.getElementById("upvote-count");
-      if(upvoteCountSpan) {
+      if (upvoteCountSpan) {
         upvoteCountSpan.textContent = data.upvotes;
       }
 
@@ -832,14 +874,13 @@ export class ICEPIGTracker {
 
   async addComment(markerId) {
     const text = document.getElementById("newComment").value;
-    const author = document.getElementById("commentAuthor").value;
 
     if (!text) return;
 
     const comment = {
       markerId,
       text,
-      author: author || "Anonymous",
+      magicCode: this.magicCode,
     };
 
     try {
@@ -856,7 +897,6 @@ export class ICEPIGTracker {
       this.loadComments(markerId);
       this.showToast("Comment added");
       document.getElementById("newComment").value = "";
-      document.getElementById("commentAuthor").value = "";
     } catch (error) {
       console.error("Comment error:", error);
       this.showToast("Failed to add comment", "error");
@@ -925,7 +965,7 @@ export class ICEPIGTracker {
       return;
     }
     try {
-      if (this.audioContext.state === 'suspended') {
+      if (this.audioContext.state === "suspended") {
         this.audioContext.resume();
       }
       const audioContext = this.audioContext;
@@ -990,11 +1030,11 @@ export class ICEPIGTracker {
     if (!confirm(this.t("confirm_delete"))) return;
 
     try {
-      const response = await fetch(`/api/markers/${id}`, { 
+      const response = await fetch(`/api/markers/${id}`, {
         method: "DELETE",
         headers: {
-          'X-Magic-Code': this.magicCode
-        }
+          "X-Magic-Code": this.magicCode,
+        },
       });
 
       if (!response.ok) {
@@ -1098,7 +1138,8 @@ export class ICEPIGTracker {
     resultsContainer.innerHTML = "";
 
     if (results.length === 0) {
-      resultsContainer.innerHTML = '<div class="search-result-item">No results found.</div>';
+      resultsContainer.innerHTML =
+        '<div class="search-result-item">No results found.</div>';
       resultsContainer.style.display = "block";
       return;
     }
@@ -1164,26 +1205,27 @@ export class ICEPIGTracker {
     const isOngoing = document.getElementById("ongoingFilter").checked;
     const isNew = document.getElementById("newFilter").checked;
 
-    this.vectorSource.getFeatures().forEach(feature => {
+    this.vectorSource.getFeatures().forEach((feature) => {
       const marker = feature.getProperties();
       let visible = true;
 
       // Status filter
-      if (status === 'active') {
+      if (status === "active") {
         visible = visible && !marker.isArchived;
-      } else if (status === 'archived') {
+      } else if (status === "archived") {
         visible = visible && marker.isArchived;
       }
 
       // Ongoing filter
       if (isOngoing) {
-        visible = visible && marker.upvoteType === 'ongoing';
+        visible = visible && marker.upvoteType === "ongoing";
       }
 
       // New filter
       if (isNew) {
         const timestamp = marker.timestamp;
-        const isNewMarker = (new Date() - new Date(timestamp)) < 24 * 60 * 60 * 1000;
+        const isNewMarker =
+          new Date() - new Date(timestamp) < 24 * 60 * 60 * 1000;
         visible = visible && isNewMarker;
       }
 
@@ -1233,14 +1275,16 @@ ICEPIGTracker.prototype.updateStats = function () {
   today.setHours(0, 0, 0, 0);
 
   this.stats.total = this.markers.length;
-  this.stats.ice = this.markers.filter(m => m.type === 'ICE').length;
-  this.stats.pig = this.markers.filter(m => m.type === 'PIG').length;
-  this.stats.today = this.markers.filter(m => new Date(m.timestamp) >= today).length;
+  this.stats.ice = this.markers.filter((m) => m.type === "ICE").length;
+  this.stats.pig = this.markers.filter((m) => m.type === "PIG").length;
+  this.stats.today = this.markers.filter(
+    (m) => new Date(m.timestamp) >= today
+  ).length;
 
-  document.getElementById('total-reports').textContent = this.stats.total;
-  document.getElementById('reports-today').textContent = this.stats.today;
-  document.getElementById('ice-reports').textContent = this.stats.ice;
-  document.getElementById('pig-reports').textContent = this.stats.pig;
+  document.getElementById("total-reports").textContent = this.stats.total;
+  document.getElementById("reports-today").textContent = this.stats.today;
+  document.getElementById("ice-reports").textContent = this.stats.ice;
+  document.getElementById("pig-reports").textContent = this.stats.pig;
 
   this.animateStats();
 };
@@ -1256,8 +1300,19 @@ ICEPIGTracker.prototype.animateStats = function () {
 };
 
 ICEPIGTracker.prototype.animateEntrance = function () {
-  gsap.from("#header", { y: -100, opacity: 0, duration: 0.7, ease: "power2.out" });
-  gsap.from("#map-container", { scale: 1.05, opacity: 0, duration: 1, ease: "power2.out", delay: 0.3 });
+  gsap.from("#header", {
+    y: -100,
+    opacity: 0,
+    duration: 0.7,
+    ease: "power2.out",
+  });
+  gsap.from("#map-container", {
+    scale: 1.05,
+    opacity: 0,
+    duration: 1,
+    ease: "power2.out",
+    delay: 0.3,
+  });
 };
 
 ICEPIGTracker.prototype.updateCharts = function () {
@@ -1305,6 +1360,5 @@ ICEPIGTracker.prototype.processChartData = function () {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(-30); // Last 30 days
 };
-
 
 // The tracker is initialized in main.js.

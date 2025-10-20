@@ -1,5 +1,11 @@
 import { Hono } from "hono";
-import { Env, Marker, MarkerFromDB, NewMarker, MarkerMagicCode } from "../types";
+import {
+  Env,
+  Marker,
+  MarkerFromDB,
+  NewMarker,
+  MarkerMagicCode,
+} from "../types";
 import { CONFIG } from "../config";
 import { rateLimitMiddleware } from "../middleware/rateLimit";
 import { sanitizeHTML, validateMarkerInput } from "../utils/sanitize";
@@ -28,10 +34,11 @@ markers.get("/", async (c) => {
         m.longitude,
         m.timestamp,
         m.is_archived,
+        m.magicCode,
         m.expires_at,
-        (SELECT type FROM upvotes WHERE markerId = m.id ORDER BY timestamp DESC LIMIT 1) as upvote_type,
+        (SELECT type FROM upvotes WHERE markerId = m.id ORDER BY timestamp DESC LIMIT 1) as upvoteType,
         GROUP_CONCAT(md.url) as mediaUrls,
-        GROUP_CONCAT(md.type) as mediaTypes
+        (SELECT COUNT(*) FROM upvotes WHERE markerId = m.id AND type = 'regular') as upvotes
       FROM markers m
       LEFT JOIN media md ON m.id = md.markerId
       WHERE m.report_count < ? AND m.hidden = 0
@@ -57,10 +64,12 @@ markers.get("/", async (c) => {
       type: row.type,
       description: row.description,
       coords: [parseFloat(row.latitude), parseFloat(row.longitude)],
+      lon: parseFloat(row.longitude), // For backwards compatibility if needed
+      lat: parseFloat(row.latitude), // For backwards compatibility if needed
       timestamp: row.timestamp,
-      magicCode: row.magic_code,
       media: row.mediaUrls ? row.mediaUrls.split(",") : [],
-      upvoteType: row.upvote_type,
+      upvoteType: row.upvoteType,
+      upvotes: row.upvotes,
     }));
 
     return c.json(markers);

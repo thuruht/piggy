@@ -4,6 +4,7 @@ export function setupDataViz(tracker) {
   tracker.renderTypeChart = renderTypeChart;
   tracker.renderHeatmap = renderHeatmap;
   tracker.toggleSidebar = toggleSidebar;
+  tracker.updateCharts = updateCharts;
   tracker.closeSidebar = closeSidebar;
   tracker.animateEntrance = animateEntrance;
 }
@@ -34,23 +35,29 @@ function renderTimelineChart() {
     .style("margin", "0 0 15px 0")
     .style("color", "#2c3e50");
 
+  const categoriesInChart = Object.keys(this.categories);
   const xScale = d3
     .scaleBand()
     .domain(this.chartData.timeline.map((d) => d.date))
     .range([0, width])
     .padding(0.1);
 
-  const yScale = d3
-    .scaleLinear()
-    .domain([0, d3.max(this.chartData.timeline, (d) => d.ice + d.pig)])
-    .range([height, 0]);
+  const maxCount = d3.max(this.chartData.timeline, (d) =>
+    d3.sum(categoriesInChart, (cat) => d[cat.toLowerCase()])
+  );
+  const yScale = d3.scaleLinear().domain([0, maxCount]).range([height, 0]);
 
   // Create stacked data
-  const stack = d3.stack().keys(["ice", "pig"]);
+  const stack = d3.stack().keys(categoriesInChart.map((c) => c.toLowerCase()));
 
   const stackedData = stack(this.chartData.timeline);
 
-  const colors = { ice: "#ff4444", pig: "#4444ff" };
+  const colors = Object.fromEntries(
+    Object.entries(this.categories).map(([key, value]) => [
+      key.toLowerCase(),
+      value.color,
+    ])
+  );
 
   // Draw bars
   g.selectAll(".layer")
@@ -85,10 +92,11 @@ function renderTypeChart() {
   const container = d3.select("#type-chart");
   container.selectAll("*").remove();
 
-  const data = [
-    { type: "ICE", count: this.chartData.types.ice, color: "#ff4444" },
-    { type: "PIG", count: this.chartData.types.pig, color: "#4444ff" },
-  ];
+  const data = Object.entries(this.chartData.types).map(([key, count]) => ({
+    type: key.toUpperCase(),
+    count: count,
+    color: this.categories[key.toUpperCase()]?.color || "#ccc",
+  }));
 
   if (data.every((d) => d.count === 0)) return;
 
@@ -231,8 +239,17 @@ function toggleSidebar() {
       stagger: 0.1,
       delay: 0.2,
     });
-    this.updateCharts();
+    if (this.updateCharts) {
+      this.updateCharts();
+    }
   }
+}
+
+function updateCharts() {
+  this.processChartData();
+  this.renderTimelineChart();
+  this.renderTypeChart();
+  this.renderHeatmap();
 }
 
 function closeSidebar() {
