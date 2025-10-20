@@ -726,6 +726,12 @@ export class ICEPIGTracker {
         upvoteBtn.innerHTML = `👍 ${this.t("upvoted")} (${data.upvotes})`;
         this.showToast("Upvoted!", "success");
       }
+
+      // Update local marker data
+      const marker = this.markers.find((m) => m.id === markerId);
+      if (marker) {
+        marker.upvotes = data.upvotes;
+      }
     } catch (error) {
       console.error("Upvote error:", error);
       this.showToast(error.message, "error");

@@ -52,7 +52,7 @@ upvotes.post("/:markerId", async (c) => {
       .bind(markerId)
       .all<{ upvotes: number }>();
 
-    const upvotesCount = results.length > 0 ? results[0].upvotes : 0;
+    const upvotesCount = results[0]?.upvotes ?? 0;
 
     return c.json({
       message: "Upvoted successfully",
