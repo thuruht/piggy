@@ -7,7 +7,7 @@
     "dev": "wrangler dev --ip 0.0.0.0",
     "deploy": "sh ./scripts/build.sh && wrangler deploy",
     "test": "vitest run",
-    "build": "./scripts/build.sh && wrangler deploy --dry-run --outdir=dist"
+    "build": "./scripts/build.sh"
   },
   "dependencies": {
     "hono": "^4.9.10",
