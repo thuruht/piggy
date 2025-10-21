@@ -25,18 +25,18 @@ markers.get("/", async (c) => {
 
   try {
     let query = `
-      SELECT
-        m.id,
-        m.type,
-        m.title,
-        m.description,
-        m.latitude,
-        m.longitude,
-        m.timestamp,
-        m.is_archived,
-        m.magicCode,
+      SELECT 
+        m.id, 
+        m.type, 
+        m.title, 
+        m.description, 
+        m.latitude, 
+        m.longitude, 
+        m.timestamp, 
+        m.is_archived, 
+        m.magic_code,
         m.expires_at,
-        (SELECT type FROM upvotes WHERE markerId = m.id ORDER BY timestamp DESC LIMIT 1) as upvoteType,
+        (SELECT type FROM upvotes WHERE markerId = m.id ORDER BY timestamp DESC LIMIT 1) as upvote_type,
         GROUP_CONCAT(md.url) as mediaUrls,
         (SELECT COUNT(*) FROM upvotes WHERE markerId = m.id AND type = 'regular') as upvotes
       FROM markers m

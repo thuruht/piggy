@@ -1,7 +1,7 @@
 import { Env } from "../types";
 import { DurableObjectState } from "@cloudflare/workers-types";
 
-export class LivestockReport {
+export class LivestockReport implements DurableObject {
   state: DurableObjectState;
   env: Env;
 

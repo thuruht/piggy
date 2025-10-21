@@ -8,6 +8,7 @@ export class ICEPIGTracker {
     this.magicCode = this.generateMagicCode();
     this.vectorSource = new ol.source.Vector();
     this.markers = [];
+    this.categories = categories;
     this.stats = { ice: 0, pig: 0, total: 0, today: 0 };
     this.chartData = {
       timeline: [],
