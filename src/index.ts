@@ -58,7 +58,7 @@ app.post("/api/upload-url", async (c) => {
 
 app.get("/ws", async (c) => {
   const durableStub = getTrackerStub(c.env);
-  return durableStub.fetch(CONFIG.DO_URLS.WEBSOCKET, c.req.raw);
+  return durableStub.fetch(c.req.raw);
 });
 
 const scheduledHandler = async (event, env, ctx) => {
