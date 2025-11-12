@@ -567,28 +567,6 @@ export class ICEPIGTracker {
   showMarkerDetails(feature) {
     const data = feature.getProperties();
     const modalBody = document.getElementById("modal-body");
-    modalBody.innerHTML = ""; // Clear previous content
-
-    const title = document.createElement("h3");
-    title.textContent = data.title;
-    modalBody.appendChild(title);
-
-    const meta = document.createElement("div");
-    meta.className = "modal-meta";
-    const type = document.createElement("span");
-    type.innerHTML = `<strong>Type:</strong> ${data.type}`;
-    meta.appendChild(type);
-    const posted = document.createElement("span");
-    posted.innerHTML = `<strong>Posted:</strong> ${new Date(
-      data.timestamp
-    ).toLocaleString()}`;
-    meta.appendChild(posted);
-    modalBody.appendChild(meta);
-
-    const description = document.createElement("p");
-    description.textContent = data.description || "No description";
-    modalBody.appendChild(description);
-
     const mediaHtml =
       data.media && data.media.length > 0
         ? data.media
@@ -606,32 +584,20 @@ export class ICEPIGTracker {
                   "svg",
                 ].includes(fileExtension)
               ) {
-                return `<img src="${url}" class="media-preview" onerror="this.style.display='none'">`;
+                return `<img src="${url}" class="media-preview" loading="lazy" onerror="this.style.display='none'" onclick="tracker.showMediaViewer('${url}')">`;
               } else if (
                 ["mp4", "webm", "ogg", "mov", "avi"].includes(fileExtension)
               ) {
                 return `<video controls class="media-preview"><source src="${url}" type="video/${
                   fileExtension === "mov" ? "quicktime" : fileExtension
                 }"></video>`;
-              } else if (
-                ["mp3", "wav", "ogg", "aac", "m4a", "flac"].includes(
-                  fileExtension
-                )
-              ) {
-                return `<audio controls class="media-preview"><source src="${url}" type="audio/${fileExtension}"></audio>`;
               } else {
-                return `<a href="${url}" target="_blank">View Media</a>`;
+                return `<a href="${url}" target="_blank" class="media-link">View Media</a>`;
               }
             })
             .join("")
         : "";
 
-    const mediaContainer = document.createElement("div");
-    mediaContainer.className = "media-container";
-    mediaContainer.innerHTML = mediaHtml;
-    modalBody.appendChild(mediaContainer);
-
-    // Check session storage for upvote/report status
     const upvoteKey = `upvoted_regular_${data.id}`;
     const ongoingUpvoteKey = `upvoted_ongoing_${data.id}`;
     const reportKey = `reported_${data.id}`;
@@ -639,60 +605,75 @@ export class ICEPIGTracker {
     const alreadyOngoingUpvoted = sessionStorage.getItem(ongoingUpvoteKey);
     const alreadyReported = sessionStorage.getItem(reportKey);
 
-    document.getElementById("modal-body").innerHTML = `
-  <h3>${data.title}</h3>
-  <div class="modal-meta">
-    <span><strong>Type:</strong> ${data.type}</span>
-    <span><strong>Posted:</strong> ${new Date(
-      data.timestamp
-    ).toLocaleString()}</span>
-  </div>
-  <p>${data.description || "No description"}</p>
-  <div class="media-container">${mediaHtml}</div>
-  
-  <div class="modal-actions">
-    <button id="report-btn" onclick="tracker.reportMarker('${data.id}')" ${
-      alreadyReported ? "disabled" : ""
-    }>
-      ${alreadyReported ? "✓ Reported" : "⚠ Report"}
-    </button>
-    <button id="upvote-btn-regular" onclick="tracker.upvoteMarker('${
-      data.id
-    }', 'regular')" ${alreadyUpvoted ? "disabled" : ""}>
-      👍 ${
-        alreadyUpvoted ? this.t("upvoted") : this.t("upvote")
-      } (<span id="upvote-count">${data.upvotes || 0}</span>)
-    </button>
-    <button id="upvote-btn-ongoing" onclick="tracker.upvoteMarker('${
-      data.id
-    }', 'ongoing')" ${alreadyOngoingUpvoted ? "disabled" : ""}>
-      👀 ${this.t("still_here")}
-    </button>
-  </div>
-
-  <div id="comments"><h4>${this.t("comments")}</h4></div>
-  <textarea id="newComment" placeholder="${this.t("add_comment")}"></textarea>
-  <div><input type="checkbox" id="rememberMe"> <label for="rememberMe">${this.t(
-    "remember_me"
-  )}</label></div>
-  <button onclick="tracker.addComment('${data.id}')">${this.t(
+    modalBody.innerHTML = `
+      <h3>${data.title}</h3>
+      <div class="modal-meta">
+        <span><strong>Type:</strong> ${data.type}</span>
+        <span><strong>${this.t("label_posted")}:</strong> ${new Date(
+          data.timestamp
+        ).toLocaleString()}</span>
+      </div>
+      <p>${data.description || this.t("no_description")}</p>
+      <div class="media-container">${mediaHtml}</div>
+      <div class="modal-actions">
+        <button id="report-btn" onclick="tracker.reportMarker('${
+          data.id
+        }')" ${alreadyReported ? "disabled" : ""}>
+          <i class="ti ti-flag"></i> ${
+            alreadyReported ? this.t("reported") : this.t("report")
+          }
+        </button>
+        <button id="upvote-btn-regular" onclick="tracker.upvoteMarker('${
+          data.id
+        }', 'regular')" ${alreadyUpvoted ? "disabled" : ""}>
+          <i class="ti ti-thumb-up"></i> ${
+            alreadyUpvoted ? this.t("upvoted") : this.t("upvote")
+          } (<span id="upvote-count">${data.upvotes || 0}</span>)
+        </button>
+        <button id="upvote-btn-ongoing" onclick="tracker.upvoteMarker('${
+          data.id
+        }', 'ongoing')" ${alreadyOngoingUpvoted ? "disabled" : ""}>
+          <i class="ti ti-eye"></i> ${this.t("still_here")}
+        </button>
+      </div>
+      <div id="comments-section">
+        <h4><i class="ti ti-messages"></i> ${this.t("comments")}</h4>
+        <div id="comments-list"></div>
+        <div id="comment-form">
+          <textarea id="newComment" placeholder="${this.t(
+            "add_comment"
+          )}"></textarea>
+          <div>
+            <input type="checkbox" id="rememberMe">
+            <label for="rememberMe">${this.t("remember_me")}</label>
+          </div>
+          <button onclick="tracker.addComment('${data.id}')">${this.t(
       "add_comment"
     )}</button>
-  
-  ${
-    this.canEdit(data)
-      ? `
-    <div class="admin-actions">
-      <button onclick="tracker.deleteMarker('${data.id}')">${this.t(
-          "delete"
-        )}</button>
-    </div>
-  `
-      : ""
-  }
-`;
+        </div>
+      </div>
+      ${
+        this.canEdit(data)
+          ? `
+        <div class="admin-actions">
+          <h4>Admin Actions</h4>
+          <button onclick="tracker.deleteMarker('${data.id}')" class="danger-btn">
+            <i class="ti ti-trash"></i> ${this.t("delete")}
+          </button>
+        </div>
+      `
+          : ""
+      }
+    `;
+
     this.loadComments(data.id);
     document.getElementById("modal").style.display = "block";
+    gsap.from(".modal-content", {
+      y: 20,
+      opacity: 0,
+      duration: 0.3,
+      ease: "power2.out",
+    });
   }
 
   async upvoteMarker(markerId, type = "regular") {
@@ -959,6 +940,21 @@ export class ICEPIGTracker {
 
   closeModal() {
     document.getElementById("modal").style.display = "none";
+  }
+
+  showMediaViewer(url) {
+    const viewer = document.createElement("div");
+    viewer.id = "media-viewer";
+    viewer.innerHTML = `<img src="${url}" alt="Media preview">`;
+    viewer.onclick = () => this.closeMediaViewer();
+    document.body.appendChild(viewer);
+  }
+
+  closeMediaViewer() {
+    const viewer = document.getElementById("media-viewer");
+    if (viewer) {
+      viewer.remove();
+    }
   }
 
   triggerHaptic(pattern = 20) {
