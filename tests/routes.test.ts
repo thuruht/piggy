@@ -48,10 +48,9 @@ describe("API Routes", () => {
         createPresignedUrl: async () => "http://dummy-url.com/upload",
       } as any,
       LIVESTOCK_REPORTS: {
-        idFromName: () => ({
-          get: () => ({
-            fetch: async () => new Response("OK"),
-          }),
+        idFromName: () => ({} as any),
+        get: () => ({
+          fetch: async () => new Response("OK"),
         }),
       } as any,
       ASSETS: {

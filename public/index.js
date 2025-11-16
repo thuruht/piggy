@@ -397,7 +397,6 @@ export class ICEPIGTracker {
       const uploadResponse = await fetch(data.uploadUrl, {
         method: "PUT",
         body: file,
-        headers: { "Content-Type": file.type },
       });
 
       if (!uploadResponse.ok) {
