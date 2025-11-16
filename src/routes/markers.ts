@@ -80,8 +80,10 @@ markers.get("/", async (c) => {
 });
 
 // POST /api/markers - Create new marker
+// This endpoint is carefully designed to protect user privacy.
+// No IP addresses or other personally identifiable information are logged.
 markers.post("/", async (c) => {
-  // Rate limiting
+  // Rate limiting is based on the `magicCode` or a generic "anonymous" identifier, not IP addresses.
   const rateLimitResult = await rateLimitMiddleware(c, "markers");
   if (rateLimitResult) return rateLimitResult;
 
