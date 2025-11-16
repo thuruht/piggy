@@ -30,7 +30,15 @@
     "data_insights": "Data Insights",
     "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
     "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "upvoted": "Upvoted",
+    "add_new_marker_short": "Add",
+    "filter_all": "All",
+    "filter_active": "Active",
+    "filter_archived": "Archived",
+    "filter_ongoing": "Ongoing",
+    "filter_new": "New",
+    "online": "online",
+    "no_description": "No description"
   },
   "es": {
     "add_new_marker": "Agregar nuevo marcador",
@@ -63,7 +71,15 @@
     "data_insights": "Información de datos",
     "confirm_report": "¿Estás seguro de que quieres denunciar esta publicación? Se ocultará después de 5 denuncias.",
     "upvote": "Voto a favor",
-    "upvoted": "Votado a favor"
+    "upvoted": "Votado a favor",
+    "add_new_marker_short": "Añadir",
+    "filter_all": "Todos",
+    "filter_active": "Activo",
+    "filter_archived": "Archivado",
+    "filter_ongoing": "En curso",
+    "filter_new": "Nuevo",
+    "online": "en línea",
+    "no_description": "Sin descripción"
   },
   "fr": {
     "add_new_marker": "Ajouter un nouveau marqueur",
@@ -94,9 +110,17 @@
     "ice_activity": "Activité de l'ICE",
     "pig_activity": "Activité de PIG",
     "data_insights": "Aperçu des données",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Êtes-vous sûr de vouloir signaler ce message? Il sera masqué après 5 signalements.",
+    "upvote": "Vote positif",
+    "upvoted": "Voté positif",
+    "add_new_marker_short": "Ajouter",
+    "filter_all": "Tous",
+    "filter_active": "Actif",
+    "filter_archived": "Archivé",
+    "filter_ongoing": "En cours",
+    "filter_new": "Nouveau",
+    "online": "en ligne",
+    "no_description": "Aucune description"
   },
   "ar": {
     "add_new_marker": "إضافة علامة جديدة",
@@ -127,9 +151,17 @@
     "ice_activity": "نشاط ICE",
     "pig_activity": "نشاط الخنزير",
     "data_insights": "رؤى البيانات",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "هل أنت متأكد أنك تريد الإبلاغ عن هذا المنشور؟ سيتم إخفاؤه بعد 5 بلاغات.",
+    "upvote": "تصويت إيجابي",
+    "upvoted": "تم التصويت الإيجابي",
+    "add_new_marker_short": "إضافة",
+    "filter_all": "الكل",
+    "filter_active": "نشيط",
+    "filter_archived": "مؤرشف",
+    "filter_ongoing": "جاري",
+    "filter_new": "جديد",
+    "online": "متصل",
+    "no_description": "لا يوجد وصف"
   },
   "zh": {
     "add_new_marker": "添加新标记",
@@ -160,9 +192,17 @@
     "ice_activity": "ICE 活动",
     "pig_activity": "PIG 活动",
     "data_insights": "数据洞察",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "您确定要举报此帖子吗？ 5 次举报后，它将被隐藏。",
+    "upvote": "赞成",
+    "upvoted": "已赞成",
+    "add_new_marker_short": "添加",
+    "filter_all": "全部",
+    "filter_active": "活跃",
+    "filter_archived": "已存档",
+    "filter_ongoing": "正在进行",
+    "filter_new": "新",
+    "online": "在线",
+    "no_description": "没有描述"
   },
   "am": {
     "add_new_marker": "አዲስ ምልክት ማድረጊያ ያክሉ",
@@ -193,9 +233,17 @@
     "ice_activity": "የአይስ እንቅስቃሴ",
     "pig_activity": "የዱንቭና እንቅስቃሴ",
     "data_insights": "የውሂብ ማግኘት",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "ይህን ጽሑፍ ሪፖርት ማድረግ እንደሚፈልጉ እርግጠኛ ነዎት? ከ5 ሪፖርቶች በኋላ ይደበቃል።",
+    "upvote": "ድጋፍ",
+    "upvoted": "ተደግፏል",
+    "add_new_marker_short": "አክል",
+    "filter_all": "ሁሉም",
+    "filter_active": "ንቁ",
+    "filter_archived": "ተቀምጧል",
+    "filter_ongoing": "በሂደት ላይ",
+    "filter_new": "አዲስ",
+    "online": "መስመር ላይ",
+    "no_description": "መግለጫ የለም"
   },
   "ht": {
     "add_new_marker": "Ajoute Nouvo Makè",
@@ -226,9 +274,17 @@
     "ice_activity": "Aktivite ICE",
     "pig_activity": "Aktivite PIG",
     "data_insights": "Enfòmasyon sou done",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Èske w sèten ou vle rapòte pòs sa a? Li pral kache apre 5 rapò.",
+    "upvote": "Vote an favè",
+    "upvoted": "Vote an favè",
+    "add_new_marker_short": "Ajoute",
+    "filter_all": "Tout",
+    "filter_active": "Aktif",
+    "filter_archived": "Achiv",
+    "filter_ongoing": "Aktyèl",
+    "filter_new": "Nouvo",
+    "online": "sou entènèt",
+    "no_description": "Pa gen deskripsyon"
   },
   "kar": {
     "add_new_marker": "တၢ်ပနီၣ်တခါထီၣ်",
@@ -259,9 +315,17 @@
     "ice_activity": "ရေခဲ လုပ်ဆောင်ချက်",
     "pig_activity": "ဝက် လုပ်ဆောင်ချက်",
     "data_insights": "ဒေတာ နားလည်မှု",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "နမ့ၢ်မး ကဘၣ်တၢ်မၤနၢ် ᴅ pó스트အံၤဧါ? ᴅ pó스트 5 ဘျီ၀ံၤအလီၢ်ခံ ကဘၣ်တၢ်မၤနၢ်အီၤလီၤ။",
+    "upvote": "မဲးထီၣ်",
+    "upvoted": "မဲးထီၣ်",
+    "add_new_marker_short": "ထီၣ်",
+    "filter_all": "ခဲလၢာ်",
+    "filter_active": "မူ",
+    "filter_archived": "ပာ်",
+    "filter_ongoing": "လဲၤ",
+    "filter_new": "သီ",
+    "online": "အိၣ်",
+    "no_description": "တၢ်လီၣ်ကျိၤတအိၣ်"
   },
   "ku": {
     "add_new_marker": "Nîşankerek Nû lê zêde bike",
@@ -292,9 +356,17 @@
     "ice_activity": "Çalakiya ICE",
     "pig_activity": "Çalakiya PIG",
     "data_insights": "Têgihiştina daneyan",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Ma hûn guman dikin ku hûn dixwazin vê postê rapor bikin? Piştî 5 raporan dê were veşartin.",
+    "upvote": "Dengdan",
+    "upvoted": "Dengdayî",
+    "add_new_marker_short": "Lêzêdekirin",
+    "filter_all": "Gişt",
+    "filter_active": "Çalak",
+    "filter_archived": "Arşîvkirî",
+    "filter_ongoing": "Berdewam dike",
+    "filter_new": "Nşh",
+    "online": "serhêl",
+    "no_description": "Danasîn tune"
   },
   "my": {
     "add_new_marker": "အမှတ်အသားအသစ်ထည့်ပါ",
@@ -325,9 +397,17 @@
     "ice_activity": "ICE လုပ်ဆောင်ချက်",
     "pig_activity": "PIG လုပ်ဆောင်ချက်",
     "data_insights": "ဒေတာ အသိအမြင်",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "ဤပို့စ်ကို သတင်းပို့လိုကြောင်း သေချာပါသလား။ သတင်းပို့ ၅ ခု တိုင်ကြားပြီးပါက ဝှက်ထားပါမည်။",
+    "upvote": "ထောက်ခံမဲ",
+    "upvoted": "ထောက်ခံမဲပေးခဲ့သည်",
+    "add_new_marker_short": "ထည့်",
+    "filter_all": "အားလုံး",
+    "filter_active": "လှုပ်ရှား",
+    "filter_archived": "သိမ်းဆည်းထား",
+    "filter_ongoing": "ဆက်လက်",
+    "filter_new": "အသစ်",
+    "online": "အွန်လိုင်း",
+    "no_description": "ဖော်ပြချက်မရှိပါ"
   },
   "ne": {
     "add_new_marker": "नयाँ मार्कर थप्नुहोस्",
@@ -358,9 +438,17 @@
     "ice_activity": "ICE गतिविधि",
     "pig_activity": "PIG गतिविधि",
     "data_insights": "डाटा अंतर्दृष्टि",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "के तपाइँ यो पोस्ट रिपोर्ट गर्न निश्चित हुनुहुन्छ? ५ रिपोर्ट पछि यो लुकाइनेछ।",
+    "upvote": "अपभोट",
+    "upvoted": "अपभोट गरियो",
+    "add_new_marker_short": "थप्नुहोस्",
+    "filter_all": "सबै",
+    "filter_active": "सक्रिय",
+    "filter_archived": "अभिलेख राखियो",
+    "filter_ongoing": "चलिरहेको",
+    "filter_new": "नयाँ",
+    "online": "अनलाइन",
+    "no_description": "कुनै विवरण छैन"
   },
   "pt": {
     "add_new_marker": "Adicionar novo marcador",
@@ -391,9 +479,17 @@
     "ice_activity": "Atividade ICE",
     "pig_activity": "Atividade PIG",
     "data_insights": "Insights de dados",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Tem certeza de que deseja denunciar esta postagem? Ela será ocultada após 5 denúncias.",
+    "upvote": "Voto a favor",
+    "upvoted": "Votado a favor",
+    "add_new_marker_short": "Adicionar",
+    "filter_all": "Todos",
+    "filter_active": "Ativo",
+    "filter_archived": "Arquivado",
+    "filter_ongoing": "Em andamento",
+    "filter_new": "Novo",
+    "online": "online",
+    "no_description": "Nenhuma descrição"
   },
   "so": {
     "add_new_marker": "Ku dar Calaamad Cusub",
@@ -424,9 +520,17 @@
     "ice_activity": "Hawlaha ICE",
     "pig_activity": "Hawlaha PIG",
     "data_insights": "Aragti xogta",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Ma hubtaa inaad rabto inaad ka warbixiso qoraalkan? Waa la qarin doonaa 5 warbixinood ka dib.",
+    "upvote": "Cod bixi",
+    "upvoted": "Cod bixiyay",
+    "add_new_marker_short": "Kudar",
+    "filter_all": "Dhammaan",
+    "filter_active": "Firfircoon",
+    "filter_archived": "Kaydsan",
+    "filter_ongoing": "Socda",
+    "filter_new": "Cusub",
+    "online": "khadka",
+    "no_description": "Sharaxaad malahan"
   },
   "sw": {
     "add_new_marker": "Ongeza alama mpya",
@@ -457,9 +561,17 @@
     "ice_activity": "Shughuli za ICE",
     "pig_activity": "Shughuli za PIG",
     "data_insights": "Maarifa ya takwimu",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Una uhakika unataka kuripoti chapisho hili? Litafichwa baada ya ripoti 5.",
+    "upvote": "Piga kura",
+    "upvoted": "Imepigiwa kura",
+    "add_new_marker_short": "Ongeza",
+    "filter_all": "Zote",
+    "filter_active": "Inayotumika",
+    "filter_archived": "Imehifadhiwa",
+    "filter_ongoing": "Inaendelea",
+    "filter_new": "Mpya",
+    "online": "mtandaoni",
+    "no_description": "Hakuna maelezo"
   },
   "ur": {
     "add_new_marker": "نیا مارکر شامل کریں",
@@ -490,9 +602,17 @@
     "ice_activity": "ICE کی سرگرمی",
     "pig_activity": "PIG کی سرگرمی",
     "data_insights": "ڈیٹا کی بصیرت",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "کیا آپ واقعی اس پوسٹ کو رپورٹ کرنا چاہتے ہیں؟ 5 رپورٹس کے بعد اسے چھپا دیا جائے گا۔",
+    "upvote": "اپ ووٹ",
+    "upvoted": "اپ ووٹ دیا",
+    "add_new_marker_short": "شامل کریں",
+    "filter_all": "سب",
+    "filter_active": "فعال",
+    "filter_archived": "محفوظ شدہ",
+    "filter_ongoing": "جاری",
+    "filter_new": "نیا",
+    "online": "آن لائن",
+    "no_description": "کوئی تفصیل نہیں"
   },
   "vi": {
     "add_new_marker": "Thêm điểm đánh dấu mới",
@@ -523,8 +643,16 @@
     "ice_activity": "Hoạt động ICE",
     "pig_activity": "Hoạt động PIG",
     "data_insights": "Thông tin chi tiết dữ liệu",
-    "confirm_report": "Are you sure you want to report this post? It will be hidden after 5 reports.",
-    "upvote": "Upvote",
-    "upvoted": "Upvoted"
+    "confirm_report": "Bạn có chắc chắn muốn báo cáo bài đăng này không? Nó sẽ bị ẩn sau 5 báo cáo.",
+    "upvote": "Bỏ phiếu",
+    "upvoted": "Đã bỏ phiếu",
+    "add_new_marker_short": "Thêm",
+    "filter_all": "Tất cả",
+    "filter_active": "Hoạt động",
+    "filter_archived": "Lưu trữ",
+    "filter_ongoing": "Đang thực hiện",
+    "filter_new": "Mới",
+    "online": "trực tuyến",
+    "no_description": "Không có mô tả"
   }
 }

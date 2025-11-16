@@ -21,11 +21,18 @@ describe('Comments API', () => {
         put: async () => {}
       },
       LIVESTOCK_REPORTS: {
-        idFromName: () => ({}),
-        get: () => ({
-          fetch: async () => new Response('OK')
-        })
-      }
+        idFromName: () => {
+          return {
+            equals: () => true,
+            toString: () => "mock-do-id",
+          };
+        },
+        get: () => {
+          return {
+            fetch: async () => new Response("OK"),
+          };
+        },
+      },
     };
 
     // Create a marker to add comments to

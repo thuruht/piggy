@@ -276,7 +276,7 @@ export class ICEPIGTracker {
     `;
 
     const modal = document.getElementById("modal");
-    modal.style.display = "block";
+    modal.style.display = "block !important";
 
     gsap.from(".modal-content", {
       scale: 0.8,
@@ -397,7 +397,6 @@ export class ICEPIGTracker {
       const uploadResponse = await fetch(data.uploadUrl, {
         method: "PUT",
         body: file,
-        headers: { "Content-Type": file.type },
       });
 
       if (!uploadResponse.ok) {
@@ -657,7 +656,7 @@ export class ICEPIGTracker {
           ? `
         <div class="admin-actions">
           <h4>Admin Actions</h4>
-          <button onclick="tracker.deleteMarker('${data.id}')" class="danger-btn">
+          <button onclick="tracker.deleteMarker('${data.id}', '${data.magicCode}')" class="danger-btn">
             <i class="ti ti-trash"></i> ${this.t("delete")}
           </button>
         </div>
@@ -896,7 +895,7 @@ export class ICEPIGTracker {
       const response = await fetch(`/api/comments/${markerId}`);
       const comments = await response.json();
 
-      document.getElementById("comments").innerHTML = comments
+      document.getElementById("comments-list").innerHTML = comments
         .map(
           (c) => `
         <div class="comment">
@@ -919,12 +918,12 @@ export class ICEPIGTracker {
     const btn = document.getElementById("addBtn");
 
     if (this.addMode) {
+      const centerCoords = ol.proj.toLonLat(this.map.getView().getCenter());
+      this.showAddMarkerModal(centerCoords);
       btn.textContent = "Done";
       btn.style.background = "linear-gradient(45deg, #95a5a6, #7f8c8d)";
-      this.showToast(
-        this.t("add_marker_instruction") || "Click on the map to add a report"
-      );
     } else {
+      this.closeModal();
       btn.textContent = "Add";
       btn.style.background = "linear-gradient(45deg, #ff6b6b, #ee5a52)";
     }
@@ -1029,14 +1028,14 @@ export class ICEPIGTracker {
     }
   }
 
-  async deleteMarker(id) {
+  async deleteMarker(id, magicCode) {
     if (!confirm(this.t("confirm_delete"))) return;
 
     try {
       const response = await fetch(`/api/markers/${id}`, {
         method: "DELETE",
         headers: {
-          "X-Magic-Code": this.magicCode,
+          "X-Magic-Code": magicCode,
         },
       });
 

@@ -21,7 +21,7 @@ export async function rateLimitMiddleware(
   }
 
   // If no magic code, we can't effectively rate limit without using IP.
-  // This is a design decision to enforce privacy.
+  // This is a design decision to enforce privacy. We do not use IP addresses for rate limiting.
   if (!identifier) {
     identifier = "anonymous"; // This will apply the rate limit globally for all anonymous requests.
   }

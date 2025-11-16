@@ -67,8 +67,9 @@ markers.get("/", async (c) => {
       lon: parseFloat(row.longitude), // For backwards compatibility if needed
       lat: parseFloat(row.latitude), // For backwards compatibility if needed
       timestamp: row.timestamp,
+      magicCode: row.magic_code,
       media: row.mediaUrls ? row.mediaUrls.split(",") : [],
-      upvoteType: row.upvoteType,
+      upvoteType: row.upvote_type,
       upvotes: row.upvotes,
     }));
 
@@ -80,8 +81,10 @@ markers.get("/", async (c) => {
 });
 
 // POST /api/markers - Create new marker
+// This endpoint is carefully designed to protect user privacy.
+// No IP addresses or other personally identifiable information are logged.
 markers.post("/", async (c) => {
-  // Rate limiting
+  // Rate limiting is based on the `magicCode` or a generic "anonymous" identifier, not IP addresses.
   const rateLimitResult = await rateLimitMiddleware(c, "markers");
   if (rateLimitResult) return rateLimitResult;
 

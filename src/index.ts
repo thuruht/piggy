@@ -7,7 +7,7 @@ import upvotes from "./routes/upvotes";
 import comments from "./routes/comments";
 import { CONFIG } from "./config";
 import { getTrackerStub } from "./utils/durable";
-import { sanitizeFilename } from "./utils/sanitize";
+import { sanitizeFilename, stripExif } from "./utils/sanitize";
 import { monitoringMiddleware } from "./middleware/monitoring";
 import { cspMiddleware } from "./middleware/csp";
 
@@ -41,19 +41,32 @@ app.post("/api/upload-url", async (c) => {
   const sanitizedFilename = sanitizeFilename(filename);
   const key = `media/${nanoid()}-${sanitizedFilename}`;
 
-  const presignedUrl = await c.env.LIVESTOCK_MEDIA.createPresignedUrl(
-    "PUT",
-    key,
-    {
-      expires: 3600, // URL expires in 1 hour
-      httpMetadata: { contentType },
-    },
-  );
-
   return c.json({
-    uploadUrl: presignedUrl,
+    uploadUrl: `/api/upload/${key}`,
     publicUrl: `/media/${key}`,
   });
+});
+
+app.put("/api/upload/:key{.+", async (c) => {
+  const { key } = c.req.param();
+  const contentType = c.req.header('content-type');
+
+  try {
+    const imageBlob = await c.req.blob();
+    const strippedBlob = await stripExif(imageBlob);
+
+    await c.env.LIVESTOCK_MEDIA.put(key, strippedBlob, {
+      httpMetadata: {
+        contentType: contentType,
+        cacheControl: 'public, max-age=31536000',
+      },
+    });
+
+    return c.json({ success: true });
+  } catch (error) {
+    console.error('Error stripping metadata or uploading to R2:', error);
+    return c.json({ error: "Error processing file" }, 500);
+  }
 });
 
 app.get("/ws", async (c) => {
@@ -64,7 +77,7 @@ app.get("/ws", async (c) => {
 const scheduledHandler = async (event, env, ctx) => {
   try {
     const { results } = await env.LIVESTOCK_DB.prepare(
-      `UPDATE markers SET isArchived = 1 WHERE expiresAt < ? AND isArchived = 0`
+      `UPDATE markers SET is_archived = 1 WHERE expires_at < ? AND is_archived = 0`
     )
       .bind(new Date().toISOString())
       .run();

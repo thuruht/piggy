@@ -25,9 +25,9 @@ reports.post("/:id/report", async (c) => {
     const result = (await c.env.LIVESTOCK_DB.prepare(
       `
   UPDATE markers
-  SET reportCount = reportCount + 1,
+  SET report_count = report_count + 1,
       hidden = CASE 
-                WHEN (reportCount + 1 >= ?) AND ((reportCount + 1) > (upvotes * 2)) THEN 1 
+                WHEN (report_count + 1 >= ?) THEN 1
                 ELSE 0 
               END
   WHERE id = ?
