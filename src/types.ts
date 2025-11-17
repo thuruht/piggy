@@ -20,9 +20,10 @@ export interface MarkerFromDB {
   latitude: string;
   longitude: string;
   timestamp: string;
-  magicCode: string;
+  magic_code: string;
   mediaUrls: string | null;
   upvotes: number | null;
+  upvote_type: string | null;
 }
 
 export interface NewMarker {

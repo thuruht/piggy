@@ -47,7 +47,7 @@ app.post("/api/upload-url", async (c) => {
   });
 });
 
-app.put("/api/upload/:key", async (c) => {
+app.put("/api/upload/:key{.+", async (c) => {
   const { key } = c.req.param();
   const contentType = c.req.header('content-type');
 
@@ -77,7 +77,7 @@ app.get("/ws", async (c) => {
 const scheduledHandler = async (event, env, ctx) => {
   try {
     const { results } = await env.LIVESTOCK_DB.prepare(
-      `UPDATE markers SET isArchived = 1 WHERE expiresAt < ? AND isArchived = 0`
+      `UPDATE markers SET is_archived = 1 WHERE expires_at < ? AND is_archived = 0`
     )
       .bind(new Date().toISOString())
       .run();

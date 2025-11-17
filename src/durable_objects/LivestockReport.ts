@@ -13,7 +13,7 @@ export class LivestockReport implements DurableObject {
   async fetch(request: Request) {
     const url = new URL(request.url);
 
-    if (url.pathname === "/websocket") {
+    if (url.pathname === "/ws") {
       const { 0: client, 1: server } = new WebSocketPair();
       await this.handleSession(server);
 

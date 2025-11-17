@@ -3,7 +3,7 @@ import { Env } from "../types";
 import { sanitizeHTML } from "../utils/sanitize";
 import { nanoid } from "nanoid";
 import { CONFIG } from "../config";
-import { generateRandomName } from "../utils/pseudonyms";
+import { getOrCreatePseudonym } from "../utils/pseudonym";
 
 const comments = new Hono<{ Bindings: Env }>();
 
@@ -54,15 +54,10 @@ comments.post("/", async (c) => {
     }
 
     if (!magicCode) {
-      magicCode = nanoid();
-      const pseudonym = generateRandomName();
-      await c.env.LIVESTOCK_DB.prepare(
-        "INSERT INTO pseudonyms (magic_code, pseudonym) VALUES (?, ?)"
-      )
-        .bind(magicCode, pseudonym)
-        .run();
+      magicCode = nanoid(); // Generate a new magic code if one isn't provided
     }
 
+    await getOrCreatePseudonym(c.env, magicCode);
     const sanitizedText = sanitizeHTML(text);
 
     await c.env.LIVESTOCK_DB.prepare(

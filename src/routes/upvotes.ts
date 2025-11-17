@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { Env } from "../types";
 import { rateLimitMiddleware } from "../middleware/rateLimit";
 import { nanoid } from "nanoid";
+import { getOrCreatePseudonym } from "../utils/pseudonym";
 
 const upvotes = new Hono<{ Bindings: Env }>();
 
@@ -16,6 +17,8 @@ upvotes.post("/:markerId", async (c) => {
     if (!magicCode) {
       return c.json({ error: "Missing magicCode" }, 400);
     }
+
+    await getOrCreatePseudonym(c.env, magicCode);
 
     const upvoteKey = `upvoted_${type}_${markerId}_${magicCode}`;
     const hasUpvoted = await c.env.PIGMAP_CONFIG.get(upvoteKey);

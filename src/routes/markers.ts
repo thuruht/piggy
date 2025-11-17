@@ -67,8 +67,9 @@ markers.get("/", async (c) => {
       lon: parseFloat(row.longitude), // For backwards compatibility if needed
       lat: parseFloat(row.latitude), // For backwards compatibility if needed
       timestamp: row.timestamp,
+      magicCode: row.magic_code,
       media: row.mediaUrls ? row.mediaUrls.split(",") : [],
-      upvoteType: row.upvoteType,
+      upvoteType: row.upvote_type,
       upvotes: row.upvotes,
     }));
 
