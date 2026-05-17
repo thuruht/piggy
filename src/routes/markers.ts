@@ -126,8 +126,8 @@ markers.post("/", async (c) => {
         marker.title,
         marker.type,
         marker.description,
-        marker.coords[0],
         marker.coords[1],
+        marker.coords[0],
         marker.timestamp,
         marker.magicCode,
         expiresAt.toISOString()

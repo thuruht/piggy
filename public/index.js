@@ -1,4 +1,20 @@
-import { createLayerControl } from "./map-layers.js";
+
+function generateDeviceId() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function getDeviceId() {
+  let deviceId = localStorage.getItem('deviceId');
+  if (!deviceId) {
+    deviceId = generateDeviceId();
+    localStorage.setItem('deviceId', deviceId);
+  }
+  return deviceId;
+}
+\nimport { createLayerControl } from "./map-layers.js";
 import { categories } from "./categories.js";
 
 export class ICEPIGTracker {
@@ -377,7 +393,7 @@ export class ICEPIGTracker {
     try {
       const response = await fetch("/api/upload-url", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Device-ID": getDeviceId() },
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
@@ -418,7 +434,7 @@ export class ICEPIGTracker {
     while (retries > 0) {
       const response = await fetch("/api/markers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Device-ID": getDeviceId() },
         body: JSON.stringify(marker),
       });
 
@@ -682,7 +698,7 @@ export class ICEPIGTracker {
     try {
       const response = await fetch(`/api/upvotes/${markerId}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Device-ID": getDeviceId() },
         body: JSON.stringify({ type, magicCode: this.magicCode }),
       });
       if (!response.ok) {
@@ -731,7 +747,7 @@ export class ICEPIGTracker {
     try {
       const response = await fetch(`/api/markers/${markerId}/report`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Device-ID": getDeviceId() },
         body: JSON.stringify({ magicCode: this.magicCode }),
       });
 
@@ -873,7 +889,7 @@ export class ICEPIGTracker {
     try {
       const response = await fetch("/api/comments", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Device-ID": getDeviceId() },
         body: JSON.stringify(comment),
       });
 
@@ -1034,9 +1050,7 @@ export class ICEPIGTracker {
     try {
       const response = await fetch(`/api/markers/${id}`, {
         method: "DELETE",
-        headers: {
-          "X-Magic-Code": magicCode,
-        },
+        headers: { "X-Magic-Code": magicCode, "X-Device-ID": getDeviceId() },
       });
 
       if (!response.ok) {
