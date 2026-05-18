@@ -47,7 +47,7 @@ app.post("/api/upload-url", async (c) => {
   });
 });
 
-app.put("/api/upload/:key{.+", async (c) => {
+app.put("/api/upload/:key{.+}", async (c) => {
   const { key } = c.req.param();
   const contentType = c.req.header('content-type');
 

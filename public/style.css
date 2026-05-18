@@ -774,3 +774,31 @@ textarea {
   from { transform: scale(0.9); }
   to { transform: scale(1); }
 }
+
+@media (max-width: 768px) {
+  #map-overlay {
+    top: auto;
+    bottom: 20px;
+    right: 10px;
+    left: 10px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .layer-dropdown-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    z-index: 9999;
+  }
+
+  .legend {
+    font-size: 12px;
+    padding: 10px;
+  }
+}

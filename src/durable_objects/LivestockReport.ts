@@ -22,7 +22,7 @@ export class LivestockReport implements DurableObject {
           const data = JSON.parse(event.data as string);
           if (data.type === "user_location") {
             // Here you could aggregate user locations, for now just broadcast active users
-            this.broadcast({ type: "active_users", count: this.sessions.size });
+            this.broadcast({ type: "active_users", count: this.state.getWebSockets().length });
           }
         } catch (error) {
           console.error("Invalid WebSocket message:", error);

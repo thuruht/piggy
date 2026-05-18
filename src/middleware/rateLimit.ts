@@ -20,10 +20,9 @@ export async function rateLimitMiddleware(
     // ignore if body is not present or not json
   }
 
-  // If no magic code, we can't effectively rate limit without using IP.
-  // This is a design decision to enforce privacy. We do not use IP addresses for rate limiting.
+  // Fallback to X-Device-ID header for robust rate limiting without relying on IP addresses
   if (!identifier) {
-    identifier = "anonymous"; // This will apply the rate limit globally for all anonymous requests.
+    identifier = c.req.header('X-Device-ID') || "anonymous";
   }
 
   const key = `ratelimit:${endpoint}:${identifier}`;
